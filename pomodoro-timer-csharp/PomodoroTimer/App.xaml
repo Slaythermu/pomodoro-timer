@@ -1,0 +1,65 @@
+<Application x:Class="PomodoroTimer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PomodoroTimer"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <SolidColorBrush x:Key="BgBrush" Color="#1a1b26" />
+        <SolidColorBrush x:Key="PanelBrush" Color="#22243a" />
+        <SolidColorBrush x:Key="TextBrush" Color="#e8e9f3" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#8b8da8" />
+        <SolidColorBrush x:Key="FocusBrush" Color="#f27059" />
+        <SolidColorBrush x:Key="ShortBrush" Color="#4fb0a5" />
+        <SolidColorBrush x:Key="LongBrush" Color="#6f8fd6" />
+        <SolidColorBrush x:Key="RingBgBrush" Color="#33344f" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#3a3c5c" />
+        <SolidColorBrush x:Key="SeparatorBrush" Color="#2e3050" />
+
+        <Style x:Key="PillButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="20">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ControlButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="28,12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ControlButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource FocusBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </Application.Resources>
+</Application>
