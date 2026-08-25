@@ -45,6 +45,8 @@ python -m http.server 8000
 
 e acesse `http://localhost:8000`.
 
+Também existe uma versão nativa para Windows em C#/WPF: veja [pomodoro-timer-csharp](pomodoro-timer-csharp/README.md).
+
 ## Estrutura do projeto
 
 ```
