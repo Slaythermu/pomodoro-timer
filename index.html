@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pomodoro</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>Pomodoro</h1>
+
+    <div class="modes">
+      <button class="mode-btn active" data-mode="focus">Foco</button>
+      <button class="mode-btn" data-mode="short">Pausa curta</button>
+      <button class="mode-btn" data-mode="long">Pausa longa</button>
+    </div>
+
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 220 220">
+        <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
+        <circle class="ring-progress" cx="110" cy="110" r="100"></circle>
+      </svg>
+      <div class="time-display" id="timeDisplay">25:00</div>
+    </div>
+
+    <div class="controls">
+      <button id="startPauseBtn" class="primary">Iniciar</button>
+      <button id="resetBtn">Reiniciar</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value" id="sessionCount">0</span>
+        <span class="stat-label">sessões hoje</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="minutesFocused">0</span>
+        <span class="stat-label">minutos focados</span>
+      </div>
+    </div>
+
+    <div class="history">
+      <h2>Histórico</h2>
+      <ul id="historyList" class="history-list"></ul>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
