@@ -12,9 +12,9 @@ const G=`const g=window.__game;`;
 const scenes=[
  ['01-overview','seed=1&autostart=1','',90],
  ['02-hero-closeup','seed=1&autostart=1',`${G}try{g.camera.position.set(g.player.pos.x+4,g.player.pos.y+4.5,g.player.pos.z+7);g.camera.lookAt(g.player.pos.x,g.player.pos.y+1.5,g.player.pos.z);g.camera.fov=30;g.camera.updateProjectionMatrix();g.player.noCamera=true}catch(e){}`,60],
- ['03-combat-horde','seed=2&autostart=1',`${G}try{g.enemies.spawnWave(6);g.input.down=true;}catch(e){}`,300],
+ ['03-combat-horde','seed=2&autostart=1&autowave=0',`${G}try{const P=g.player.pos;const E=g.enemies;for(let i=0;i<26;i++){const a=i/26*Math.PI*2+0.3,r=7+(i%4)*1.6;E.spawn('skitter',P.x+Math.cos(a)*r,P.z+Math.sin(a)*r)}E.spawn('brute',P.x+9,P.z-6);E.spawn('brute',P.x-10,P.z-4);E.spawn('spitter',P.x+3,P.z-12);g.input.down=true}catch(e){}`,150],
  ['04-base','seed=3&autostart=1',`${G}try{const P=g.player.pos;for(const [t,x,z] of [['turret',6,0],['turret',-6,3],['harvester',4,-6],['generator',-5,-5],['wall',9,4],['wall',9,6],['tower',0,8]])g.buildings.place(t,{x:P.x+x,y:0,z:P.z+z,isVector3:false})}catch(e){}`,200],
- ['05-vfx-explosions','seed=4&autostart=1',`${G}try{const P=g.player.pos;for(let i=0;i<5;i++)g.fx.burst('explosion',{x:P.x+(i-2)*3,y:0.5,z:P.z-6},{});g.fx.burst('blood',{x:P.x,y:0.5,z:P.z-3},{})}catch(e){}`,25],
+ ['05-vfx-explosions','seed=4&autostart=1',`${G}try{const P=g.player.pos;for(let i=0;i<5;i++)g.fx.burst('explosion',{x:P.x+(i-2)*3,y:0.5,z:P.z-6},{});g.fx.burst('blood',{x:P.x,y:0.5,z:P.z-3},{})}catch(e){}`,9],
  ['06-hud-ui','seed=1&autostart=1','',120],
  ['07-title','seed=1','',60],
 ];
