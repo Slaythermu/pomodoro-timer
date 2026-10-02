@@ -8,9 +8,9 @@ const C = (r, g, b) => new THREE.Color(r, g, b);
 // Time-of-day keys (t: 0 night, .25 alien dawn, .5 noon, .75 dusk). Colours are linear.
 const KEYS = [
   { t: 0.00, top: C(0.004, 0.006, 0.03), hor: C(0.03, 0.05, 0.12), sun: C(0.35, 0.5, 1.0), sunI: 0.8, az: 215, el: 38, hemS: C(0.07, 0.1, 0.26), hemG: C(0.03, 0.025, 0.06), hemI: 0.9, fog: C(0.025, 0.045, 0.1), fogD: 0.018, night: 1.0, expo: 1.15 },
-  { t: 0.25, top: C(0.05, 0.1, 0.32), hor: C(1.0, 0.36, 0.16), sun: C(1.0, 0.5, 0.24), sunI: 4.6, az: 218, el: 22, hemS: C(0.12, 0.30, 0.46), hemG: C(0.34, 0.12, 0.07), hemI: 1.5, fog: C(0.30, 0.2, 0.28), fogD: 0.020, night: 0.45, expo: 1.0 },
-  { t: 0.50, top: C(0.08, 0.30, 0.62), hor: C(0.55, 0.62, 0.62), sun: C(1.0, 0.9, 0.74), sunI: 5.2, az: 235, el: 58, hemS: C(0.28, 0.46, 0.62), hemG: C(0.24, 0.16, 0.1), hemI: 1.9, fog: C(0.34, 0.5, 0.58), fogD: 0.011, night: 0.0, expo: 0.9 },
-  { t: 0.75, top: C(0.1, 0.05, 0.28), hor: C(1.0, 0.2, 0.2), sun: C(1.0, 0.36, 0.2), sunI: 4.2, az: 252, el: 18, hemS: C(0.18, 0.18, 0.46), hemG: C(0.36, 0.1, 0.1), hemI: 1.4, fog: C(0.3, 0.14, 0.26), fogD: 0.022, night: 0.55, expo: 1.0 },
+  { t: 0.25, top: C(0.05, 0.1, 0.32), hor: C(1.0, 0.36, 0.16), sun: C(1.0, 0.5, 0.24), sunI: 6.8, az: 218, el: 22, hemS: C(0.12, 0.30, 0.46), hemG: C(0.34, 0.12, 0.07), hemI: 0.95, fog: C(0.30, 0.2, 0.28), fogD: 0.020, night: 0.45, expo: 1.0 },
+  { t: 0.50, top: C(0.08, 0.30, 0.62), hor: C(0.55, 0.62, 0.62), sun: C(1.0, 0.9, 0.74), sunI: 6.6, az: 235, el: 58, hemS: C(0.28, 0.46, 0.62), hemG: C(0.24, 0.16, 0.1), hemI: 1.3, fog: C(0.34, 0.5, 0.58), fogD: 0.011, night: 0.0, expo: 0.9 },
+  { t: 0.75, top: C(0.1, 0.05, 0.28), hor: C(1.0, 0.2, 0.2), sun: C(1.0, 0.36, 0.2), sunI: 6.2, az: 252, el: 18, hemS: C(0.18, 0.18, 0.46), hemG: C(0.36, 0.1, 0.1), hemI: 0.9, fog: C(0.3, 0.14, 0.26), fogD: 0.022, night: 0.55, expo: 1.0 },
 ];
 const _tmpC = new THREE.Color();
 function sampleKeys(t) {
@@ -204,13 +204,13 @@ export function init(ctx) {
   }
 
   // ---- particles
-  const wisps = makeParticles(lowfx ? 12 : 34, { box: [70, 1, 70], wind: [1.4, 0, 0.5], size: 16, y0: 2.2, yh: 5, opacity: 0.075, soft: 2.2, additive: false });
-  const motes = makeParticles(lowfx ? 90 : 320, { box: [56, 1, 56], wind: [0.9, 0, 0.35], size: 0.16, y0: 0.4, yh: 9, opacity: 0.9, soft: 2.8, additive: true });
+  const wisps = makeParticles(lowfx ? 10 : 22, { box: [70, 1, 70], wind: [1.4, 0, 0.5], size: 16, y0: 2.2, yh: 5, opacity: 0.05, soft: 2.2, additive: false });
+  const motes = makeParticles(lowfx ? 60 : 200, { box: [56, 1, 56], wind: [0.9, 0, 0.35], size: 0.1, y0: 0.4, yh: 9, opacity: 0.9, soft: 2.8, additive: true });
   scene.add(wisps, motes);
 
   const params = {
     sunDir: new THREE.Vector3(0, 1, 0), sunColor: new THREE.Color(), sunIntensity: 1,
-    fogColor: new THREE.Color(), fogDensity: 0.02, fogHeightFalloff: 0.16, fogBaseY: 0, fogMax: 0.82,
+    fogColor: new THREE.Color(), fogDensity: 0.02, fogHeightFalloff: 0.14, fogBaseY: 0, fogMax: 0.82,
     fogSunTint: new THREE.Color(), exposure: 1, night: 0, skyTop: new THREE.Color(), skyHorizon: new THREE.Color(),
     scatter: 1.0, sun,
   };
@@ -283,7 +283,7 @@ export function init(ctx) {
       u.uCenter.value.set(pp ? pp.x : 0, 0, pp ? pp.z : 0); u.uTime.value = c.time; u.uPx.value = hpx;
     }
     wisps.material.uniforms.uColor.value.copy(params.fogColor).multiplyScalar(2.2).lerp(params.fogSunTint, 0.35);
-    wisps.material.uniforms.uOpacity.value = 0.05 + params.fogDensity * 2.5;
+    wisps.material.uniforms.uOpacity.value = 0.02 + params.fogDensity * 1.5;
     motes.material.uniforms.uColor.value.copy(params.sunColor).lerp(_tmpC.setRGB(0.6, 1.0, 0.9), 0.35 + params.night * 0.4).multiplyScalar(1.6 + params.night * 2);
 
     // point-light fade

@@ -195,7 +195,7 @@ class AtmospherePass extends Pass {
       vu.tShadow.value = sh.map ? sh.map.texture : null;
       vu.uShadowM.value.copy(sh.matrix);
       vu.uSunDir.value.copy(L.sunDir); vu.uSunCol.value.copy(L.sunColor).multiplyScalar(L.sunIntensity * 0.22);
-      vu.uDensity.value = L.fogDensity; vu.uFalloff.value = L.fogHeightFalloff; vu.uBaseY.value = L.fogBaseY; vu.uScatter.value = L.scatter * this.o.scatter;
+      vu.uDensity.value = L.fogDensity; vu.uFalloff.value = L.fogHeightFalloff * 0.7; vu.uBaseY.value = L.fogBaseY; vu.uScatter.value = L.scatter * this.o.scatter;
       cu.uFogCol.value.copy(L.fogColor); cu.uSunDir.value.copy(L.sunDir); cu.uSunTint.value.copy(L.fogSunTint).multiplyScalar(L.sunIntensity * 0.4);
       cu.uFogD.value = L.fogDensity; cu.uFalloff.value = L.fogHeightFalloff; cu.uBaseY.value = L.fogBaseY; cu.uFogMax.value = L.fogMax;
       if (!vu.tShadow.value) vu.uUseVol.value = 0; else vu.uUseVol.value = this.o.vol ? 1 : 0;
@@ -278,7 +278,7 @@ export function init(ctx) {
   const lowfx = q.get('lowfx') === '1' || ctx.lowfx;
   const flag = (k, def) => (q.has(k) ? q.get(k) !== '0' : def);
   const opts = {
-    msaa: lowfx ? 0 : 4, ao: flag('ao', !lowfx), vol: flag('vol', !lowfx), bloom: flag('bloom', true), scatter: 1.0,
+    msaa: lowfx ? 0 : 4, ao: flag('ao', !lowfx), vol: flag('vol', !lowfx), bloom: flag('bloom', true), scatter: 2.2,
   };
   const pr = renderer.getPixelRatio();
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, depthBuffer: false }));

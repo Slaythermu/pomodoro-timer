@@ -11,12 +11,15 @@
     m.rotation.x = -Math.PI / 2; m.receiveShadow = true; g.scene.add(m);
     g.scene.add(new THREE.HemisphereLight(0x88aacc, 0x221a14, 0.8));
   }
+  if (mode === 'none') return;
   if (mode === 'atlas') {
     import('/src/fx/atlas.js').then(a => { const c = a.atlasToCanvas(g.fx.atlas); c.style.cssText = 'position:fixed;left:0;top:0;width:900px;height:900px;background:#334;z-index:99'; document.body.appendChild(c); });
     return;
   }
   const fx = g.fx, step = n => window.__step(n, 1 / 60);
   const row = (types, z, opts) => types.forEach((t, i) => fx.burst(t, V((i - (types.length - 1) / 2) * 5.2, 0.6, z), Object.assign({dir: V(1, 0.2, 0.2)}, opts && opts[t])));
+  if (mode === 'small') { g.camera.position.set(0, 10, 7.5); g.camera.lookAt(0, 0, 0);
+    row(['muzzle', 'impact', 'spark', 'heal'], 0, {muzzle: {dir: V(1, 0, -0.3)}, impact: {normal: V(0, 1, 0), decal: true}}); step(+(q.get('fxt') || 4)); return; }
   if (mode === 'explosion') { g.camera.position.set(0, 16, 12); g.camera.lookAt(0, 0, 0); fx.burst('explosion', V(0, 0, 0), {scale: 1}); step(+(q.get('fxt') || 16)); return; }
   if (mode === 'blood') { g.camera.position.set(0, 12, 9); g.camera.lookAt(0, 0, 0);
     for (let i = 0; i < 6; i++) { fx.burst('blood', V((i - 2.5) * 2.2, 0.8, (i % 2) * 2 - 1), {dir: V(Math.sin(i), 0.3, Math.cos(i))}); step(4); }

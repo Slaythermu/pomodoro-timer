@@ -79,7 +79,7 @@ export function buildBrute(ctx,deb){
   const defs=[],bend=sx=>V(sx*0.6,1,0);let gi=0;
   for(const sz of [1,-1])for(const sx of [-1,1]){defs.push({hip:V(sx*0.8,-0.2,sz*0.95),home:V(sx*1.35,0,sz*1.0),group:(sx*sz>0)?0:1,bend:bend(sx)});
     mesh(ell(0.5,0.45,0.55),mArm,body,sx*0.95,0.1,sz*0.95)}
-  const legs=makeLegs(rig,legRoot,defs,mBody,mArm,{key:'brute',L1:1.2,L2:1.35,r0:0.3,r1:0.2,r2:0.1,claw:0.6,stepDist:0.8,stepH:0.5,stepTime:0.34});
+  const legs=makeLegs(null,legRoot,defs,mBody,mArm,{key:"brute",L1:1.2,L2:1.35,r0:0.3,r1:0.2,r2:0.1,claw:0.6,stepDist:0.8,stepH:0.5,stepTime:0.34});
   const rig={root,legRoot,body,legs,flash:fl,wps,mats:[mBody,mArm,mFlesh],
     visible(v){root.visible=v;legRoot.visible=v;for(const l of legs)l.setVisible(v)},
     reset(){for(const l of legs)l.reset();fl.value=0;this.pose=null},

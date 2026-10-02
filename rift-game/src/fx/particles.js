@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import {buildAtlas, C} from './atlas.js';
 
-const CAP = 9000, DECAL_CAP = 420, AMB_N = 150, BEAM_MAX = 48, BEAM_SEG = 16;
+const CAP = 9000, DECAL_CAP = 420, AMB_N = 150, BEAM_MAX = 48, BEAM_SEG = 28;
 const S = 32;                                  // sim floats per particle
 const [X, Y, Z, VX, VY, VZ, AGE, LIFE, S0, S1, ROT, SPIN, DRAG, GRAV, R0, G0, B0, R1, G1, B1, A0, ADD0, ADD1, CELL, STRETCH, FLAGS, SPLAT, FI, FO, GROW] =
   Array.from({length: 30}, (_, i) => i);
@@ -43,6 +43,7 @@ void main(){
   vCol = aCol; vAdd = aMisc.z;
   vec4 mv = viewMatrix * vec4(wp, 1.0); vVZ = mv.z;
   gl_Position = projectionMatrix * mv;
+  if (aMisc.w > 0.5) gl_Position.z -= 0.0016 * gl_Position.w;
 }`;
 const FRAG = /* glsl */`
 #include <packing>
@@ -74,6 +75,7 @@ void main(){
   vUv = (vec2(mod(aRot.y, 4.0), floor(aRot.y / 4.0)) + uv0) * 0.25;
   vRot = aRot; vParams = aParams; vEmis = aEmis; vBase = aBase;
   gl_Position = projectionMatrix * viewMatrix * vec4(wp, 1.0);
+  gl_Position.z -= 0.0012 * gl_Position.w;
 }`;
 const DECAL_FRAG = /* glsl */`
 uniform sampler2D uAtlas; uniform float uTime;
@@ -84,7 +86,7 @@ void main(){
   float vis = clamp(age * 12.0, 0.0, 1.0) * (1.0 - smoothstep(vParams.y * 0.7, vParams.y, age));
   float cov = t.a * vRot.z * vis;
   float glow = exp(-max(age, 0.0) / vParams.z) + vParams.w * (0.8 + 0.2 * sin(uTime * 1.7 + vParams.x * 13.0));
-  float pat = mix(pow(t.r, 1.4), t.r, vRot.w);
+  float pat = mix(pow(smoothstep(0.5, 1.0, t.r), 1.6), t.r, vRot.w);
   vec3 em = vEmis.rgb * glow * pat * smoothstep(0.0, 0.25, t.a) * vis;
   vec3 base = vBase.rgb * (0.6 + 0.8 * t.b) * cov;
   vec3 col = base + em;
@@ -104,7 +106,7 @@ void main(){
   float glow = exp(-y*y*3.2), core = exp(-y*y*26.0);
   float endf = smoothstep(0.0, 0.04, x) * smoothstep(1.0, 0.94, x);
   float shimmer = 0.88 + 0.12 * sin(x * 70.0 - uTime * 45.0 + vColor.a * 9.0);
-  vec3 c = (vColor.rgb * glow * 1.3 + vec3(1.0, 0.97, 0.9) * core * 2.4) * shimmer * endf;
+  vec3 c = (vColor.rgb * glow * 2.2 + mix(vec3(1.0), vColor.rgb, 0.35) * core * 1.9) * shimmer * endf;
   float a = (glow * 0.6 + core) * endf;
   gl_FragColor = vec4(c * min(a * 1.2, 1.0), 0.0);
   #include <tonemapping_fragment>
@@ -112,7 +114,7 @@ void main(){
 }`;
 
 const blend = {blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-  blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor, transparent: true, depthWrite: false, depthTest: true};
+  blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor, transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide};
 
 const rnd = Math.random;
 const rr = (a, b) => a + (b - a) * rnd();
@@ -206,12 +208,12 @@ export function init(ctx) {
     const rot = rnd() * TAU, cs = Math.cos(rot), sn = Math.sin(rot);
     const scorch = kind === 'scorch';
     _c.set(color === undefined ? 0xff7020 : color);
-    const gm = (o && o.glow !== undefined) ? o.glow : (scorch ? 2.2 : 2.6);
+    const gm = (o && o.glow !== undefined) ? o.glow : (scorch ? 1.6 : 1.15);
     D.aGeo.setXYZW(i, x, 0, z, size);
     D.aRot.setXYZW(i, rot, scorch ? C.SCORCH : (rnd() < 0.5 ? C.SPLAT_A : C.SPLAT_B), scorch ? 0.92 : 0.88, scorch ? 1 : 0);
-    D.aParams.setXYZW(i, ctx.time, (o && o.life) || (scorch ? 40 : 70), scorch ? 3.5 : 6, scorch ? 0.0 : (o && o.residual !== undefined ? o.residual : 0.3));
+    D.aParams.setXYZW(i, ctx.time, (o && o.life) || (scorch ? 40 : 70), scorch ? 2.2 : 2.5, scorch ? 0.0 : (o && o.residual !== undefined ? o.residual : 0.16));
     D.aEmis.setXYZW(i, _c.r * gm, _c.g * gm, _c.b * gm, 1);
-    if (scorch) D.aBase.setXYZW(i, 0.012, 0.010, 0.009, 1); else D.aBase.setXYZW(i, _c.r * 0.07, _c.g * 0.07, _c.b * 0.07, 1);
+    if (scorch) D.aBase.setXYZW(i, 0.012, 0.010, 0.009, 1); else D.aBase.setXYZW(i, _c.r * 0.03, _c.g * 0.05, _c.b * 0.04, 1);
     // bilinear ground heights at the 4 rotated corners
     const h = (lx, lz) => groundY(x + (cs * lx - sn * lz) * size, z + (sn * lx + cs * lz) * size);
     D.aH.setXYZW(i, h(-.5, -.5), h(.5, -.5), h(-.5, .5), h(.5, .5));
@@ -278,7 +280,7 @@ export function init(ctx) {
       T.life = rr(.5, .9); T.rot = rnd() * TAU; T.spin = rr(-14, 14); c0v(.5, .42, .36); c1v(.3, .26, .22); T.add0 = T.add1 = 0; T.fo = 3; emit();
     }
     const gy = groundY(p.x, p.z);
-    if ((o && o.decal === true) || (!(o && o.decal === false) && p.y - gy < 0.7)) decal('scorch', p.x, p.z, rr(.7, 1.1) * k, 0xff6a18, {glow: 1.6, life: 25});
+    if ((o && o.decal === true) || (!(o && o.decal === false) && p.y - gy < 0.7)) decal('scorch', p.x, p.z, rr(.6, .95) * k, 0xff6a18, {glow: .55, life: 18});
     if (!o || o.light !== false) light(p.x, p.y + .4, p.z, col, 1.5, 4 * k);
   };
 
@@ -286,23 +288,23 @@ export function init(ctx) {
     const k = (o && o.scale) || (o && o.radius ? o.radius / 3.5 : 1), col = colOr(o, 0xff8a2a);
     const gy = groundY(p.x, p.z), py = Math.max(p.y, gy + 0.3);
     // white-hot flash + flare
-    reset(); T.x = p.x; T.y = py + .5; T.z = p.z; T.cell = C.GLOW; T.s0 = 6 * k; T.s1 = 10 * k; T.life = .16; c0v(7, 5.5, 3.5); c1v(3, 1.2, .3); T.fi = .02; T.fo = 2; emit();
-    reset(); T.x = p.x; T.y = py + .6; T.z = p.z; T.cell = C.FLARE; T.s0 = 8 * k; T.s1 = 13 * k; T.rot = rnd() * TAU; T.spin = 1.2; T.life = .14; c0v(5, 3.6, 2); c1v(2, .8, .2); T.fi = .02; T.a0 = .9; emit();
+    reset(); T.x = p.x; T.y = py + .5; T.z = p.z; T.cell = C.GLOW; T.s0 = 6 * k; T.s1 = 10 * k; T.life = .16; c0v(3.2, 2.5, 1.6); c1v(1.2, .45, .1); T.fi = .02; T.fo = 2; emit();
+    reset(); T.x = p.x; T.y = py + .6; T.z = p.z; T.cell = C.FLARE; T.s0 = 8 * k; T.s1 = 13 * k; T.rot = rnd() * TAU; T.spin = 1.2; T.life = .14; c0v(2.4, 1.8, 1.1); c1v(1, .4, .1); T.fi = .02; T.a0 = .8; emit();
     // hot core glows
-    for (let i = 0; i < 3; i++) { reset(); T.x = p.x; T.y = py + .8 + i * .3; T.z = p.z; T.cell = C.GLOW; T.s0 = 3.5 * k; T.s1 = 6 * k; T.life = rr(.3, .5); c0(col, 3.2); c1v(.8, .1, .02); T.a0 = .85; T.fi = .03; T.fo = 1.8; emit(); }
-    // fireball
-    for (let i = 0; i < 18; i++) {
-      randDir(0.35); const sp = rr(1.8, 8) * k;
-      reset(); T.x = p.x + dx * .6 * k; T.y = py + .5 + Math.abs(dy) * .6 * k; T.z = p.z + dz * .6 * k; T.vx = dx * sp; T.vy = Math.abs(dy) * sp * .9 + rr(.5, 3) * k; T.vz = dz * sp; T.drag = 3.2; T.grav = -1.5;
-      T.cell = (i & 1) ? C.FLAME_A : C.FLAME_B; T.s0 = rr(1.3, 2) * k; T.s1 = rr(3, 4.4) * k; T.grow = .55; T.life = rr(.5, 1); T.rot = rnd() * TAU; T.spin = rr(-2, 2);
-      c0v(5, 2.8, .9); c1v(.7, .09, .015); T.a0 = .95; T.add0 = 1; T.add1 = .8; T.fi = .05; T.fo = 1.3; emit();
+    for (let i = 0; i < 3; i++) { reset(); T.x = p.x; T.y = py + .8 + i * .3; T.z = p.z; T.cell = C.GLOW; T.s0 = 3.5 * k; T.s1 = 6 * k; T.life = rr(.3, .5); c0(col, 1.5); c1v(.5, .07, .01); T.a0 = .7; T.fi = .03; T.fo = 1.8; emit(); }
+    // fireball: hot core fading to dark red; fewer, tighter puffs for readable internal structure
+    for (let i = 0; i < 22; i++) {
+      randDir(0.25); const sp = rr(1.5, 7.5) * k, hot = rnd();
+      reset(); T.x = p.x + dx * .5 * k; T.y = py + .4 + Math.abs(dy) * .5 * k; T.z = p.z + dz * .5 * k; T.vx = dx * sp; T.vy = Math.abs(dy) * sp * .8 + rr(.5, 3.2) * k; T.vz = dz * sp; T.drag = 3; T.grav = -1.8;
+      T.cell = (i & 1) ? C.FLAME_A : C.FLAME_B; T.s0 = rr(.8, 1.4) * k; T.s1 = rr(2.2, 3.4) * k; T.grow = .55; T.life = rr(.45, 1.05); T.rot = rnd() * TAU; T.spin = rr(-2.5, 2.5);
+      c0v(1.7 + hot * .9, .55 + hot * .45, .08 + hot * .1); c1v(.4, .025, .003); T.a0 = .85; T.add0 = .9; T.add1 = .25; T.fi = .05; T.fo = 1.1; emit();
     }
     // billowing smoke lit from below
     for (let i = 0; i < 20; i++) {
       randDir(0.5); const sp = rr(1.2, 4.5) * k;
       reset(); T.x = p.x + dx * 1.1 * k; T.y = py + .4 + Math.abs(dy) * k; T.z = p.z + dz * 1.1 * k; T.vx = dx * sp; T.vy = Math.abs(dy) * sp + rr(1.2, 3.6) * k; T.vz = dz * sp; T.drag = 1.7; T.grav = -.5;
       T.cell = C.SMOKE_A + (i % 3); T.s0 = rr(1.2, 1.8) * k; T.s1 = rr(3.4, 5) * k; T.grow = .6; T.life = rr(1.7, 3); T.rot = rnd() * TAU; T.spin = rr(-.7, .7);
-      c0v(3, 1.15, .35); c1v(.17, .16, .16); T.a0 = .85; T.add0 = .55; T.add1 = 0; T.fi = .07; T.fo = 1.1; emit();
+      c0v(1.3, .42, .1); c1v(.07, .065, .06); T.a0 = .88; T.add0 = .4; T.add1 = 0; T.fi = .07; T.fo = 1.1; emit();
     }
     // spark shower
     for (let i = 0; i < 40; i++) {
@@ -325,14 +327,14 @@ export function init(ctx) {
     // ground shockwave rings
     reset(); T.x = p.x; T.y = gy + .12; T.z = p.z; T.flags = F_FLAT; T.cell = C.RING; T.s0 = 1.5 * k; T.s1 = 13 * k; T.grow = .45; T.life = .55; T.rot = rnd() * TAU; c0v(2.6, 1.5, .7); c1v(.5, .22, .08); T.a0 = .9; T.fi = .03; T.fo = 1.4; emit();
     reset(); T.x = p.x; T.y = gy + .16; T.z = p.z; T.flags = F_FLAT; T.cell = C.RING; T.s0 = 1 * k; T.s1 = 9 * k; T.grow = .4; T.life = .36; T.rot = rnd() * TAU; c0v(4, 3.4, 2.6); c1v(1, .6, .3); T.a0 = .7; T.fi = .02; emit();
-    reset(); T.x = p.x; T.y = gy + .1; T.z = p.z; T.flags = F_FLAT; T.cell = C.GLOW; T.s0 = 4 * k; T.s1 = 9 * k; T.life = .7; T.rot = 0; c0v(2.2, 1, .25); c1v(.4, .06, .01); T.a0 = .8; T.fi = .04; T.fo = 1.5; emit();
+    reset(); T.x = p.x; T.y = gy + .1; T.z = p.z; T.flags = F_FLAT; T.cell = C.GLOW; T.s0 = 4 * k; T.s1 = 9 * k; T.life = .7; T.rot = 0; c0v(1.0, .45, .1); c1v(.2, .03, .005); T.a0 = .6; T.fi = .04; T.fo = 1.5; emit();
     // dust ring
     for (let i = 0; i < 14; i++) {
       const a = (i / 14 + rnd() * .05) * TAU, sp = rr(7, 11) * k;
       reset(); T.x = p.x + Math.cos(a) * k; T.y = gy + .35; T.z = p.z + Math.sin(a) * k; T.vx = Math.cos(a) * sp; T.vy = rr(.2, 1.2); T.vz = Math.sin(a) * sp; T.drag = 3.4; T.grav = -.15;
       T.cell = C.SMOKE_A + (i % 3); T.s0 = 1 * k; T.s1 = rr(2.2, 3.2) * k; T.life = rr(.9, 1.5); T.rot = rnd() * TAU; T.spin = rr(-.5, .5); c0v(.55, .45, .37); c1v(.25, .22, .2); T.a0 = .32; T.add0 = T.add1 = 0; T.fi = .08; emit();
     }
-    decal('scorch', p.x, p.z, 6.4 * k, 0xff6a18, {glow: 2.4});
+    decal('scorch', p.x, p.z, 6 * k, 0xff6a18, {glow: 1.5});
     if (!o || o.light !== false) light(p.x, py + 1.2, p.z, 0xff9040, 7, 20 * k);
     shake((o && o.shake !== undefined) ? o.shake : Math.min(1, .5 * k));
   };
@@ -342,7 +344,7 @@ export function init(ctx) {
     if (o && (o.dir || o.normal)) optDir(o, 0, 1, 0); else { dx = 0; dy = .6; dz = 0; }
     const nx = dx, ny = dy, nz = dz;
     // glowing burst
-    reset(); T.x = p.x; T.y = p.y + .2; T.z = p.z; T.cell = C.GLOW; T.s0 = 1.3 * k; T.s1 = 2.4 * k; T.life = .22; c0(col, 2.6); c1(col, .3); T.a0 = .8; T.fi = .03; emit();
+    reset(); T.x = p.x; T.y = p.y + .2; T.z = p.z; T.cell = C.GLOW; T.s0 = 1.1 * k; T.s1 = 2 * k; T.life = .2; c0(col, 2.0); c1(col, .25); T.a0 = .65; T.fi = .03; emit();
     for (let i = 0; i < 3; i++) {
       coneDir(nx, ny + .2, nz, .7); const sp = rr(1.5, 4) * k;
       reset(); T.x = p.x; T.y = p.y + .2; T.z = p.z; T.vx = dx * sp; T.vy = dy * sp; T.vz = dz * sp; T.drag = 3; T.cell = C.SMOKE_A + (i % 3); T.s0 = .4 * k; T.s1 = 1.5 * k; T.life = rr(.45, .8); T.rot = rnd() * TAU;
@@ -351,16 +353,16 @@ export function init(ctx) {
     const nd = 11 + (rnd() * 5 | 0);
     for (let i = 0; i < nd; i++) {
       coneDir(nx, ny + .35, nz, .9); const sp = rr(3, 12) * k;
-      reset(); T.x = p.x; T.y = p.y + .25; T.z = p.z; T.vx = dx * sp; T.vy = dy * sp + rr(1, 4); T.vz = dz * sp; T.drag = .5; T.grav = 24; T.flags = F_SPLAT; T.splat = rr(.45, 1.1) * k;
-      T.cell = C.BLOB; T.s0 = rr(.09, .2) * k; T.s1 = T.s0 * .7; T.grow = 1; T.stretch = .025; T.life = 2; c0(col, 1.8); c1(col, 1.4); T.a0 = .95; T.add0 = .55; T.add1 = .55; T.fi = .01; T.fo = .5; emit();
+      reset(); T.x = p.x; T.y = p.y + .25; T.z = p.z; T.vx = dx * sp; T.vy = dy * sp + rr(1, 4); T.vz = dz * sp; T.drag = .5; T.grav = 24; T.flags = F_SPLAT; T.splat = rr(.7, 1.5) * k;
+      T.cell = C.BLOB; T.s0 = rr(.07, .17) * k; T.s1 = T.s0 * .7; T.grow = 1; T.stretch = .014; T.life = 2; c0(col, .75); c1(col, .6); T.a0 = .95; T.add0 = .2; T.add1 = .2; T.fi = .01; T.fo = .5; emit();
     }
     for (let i = 0; i < 4; i++) {
       coneDir(nx, ny + .5, nz, .8); const sp = rr(2, 6) * k;
-      reset(); T.x = p.x; T.y = p.y + .3; T.z = p.z; T.vx = dx * sp; T.vy = dy * sp + rr(2, 5); T.vz = dz * sp; T.drag = .3; T.grav = 26; T.flags = F_SPLAT; T.splat = rr(1, 1.8) * k;
-      T.cell = C.BLOB; T.s0 = rr(.2, .36) * k; T.s1 = T.s0; T.rot = rnd() * TAU; T.life = 2; c0(col, 1.5); c1(col, 1.2); T.a0 = .95; T.add0 = .5; T.add1 = .5; T.fi = .01; T.fo = .5; emit();
+      reset(); T.x = p.x; T.y = p.y + .3; T.z = p.z; T.vx = dx * sp; T.vy = dy * sp + rr(2, 5); T.vz = dz * sp; T.drag = .3; T.grav = 26; T.flags = F_SPLAT; T.splat = rr(1.4, 2.4) * k;
+      T.cell = C.BLOB; T.s0 = rr(.16, .3) * k; T.s1 = T.s0; T.rot = rnd() * TAU; T.life = 2; c0(col, .7); c1(col, .55); T.a0 = .95; T.add0 = .2; T.add1 = .2; T.fi = .01; T.fo = .5; emit();
     }
     const gy = groundY(p.x, p.z);
-    if (p.y - gy < 1.4 && !(o && o.decal === false)) decal('splat', p.x + rr(-.3, .3), p.z + rr(-.3, .3), rr(1, 1.7) * k, col, {residual: .32});
+    if (p.y - gy < 1.4 && !(o && o.decal === false)) decal('splat', p.x + rr(-.3, .3), p.z + rr(-.3, .3), rr(1, 1.7) * k, col, {residual: .16});
     if (!o || o.light !== false) light(p.x, p.y + .5, p.z, col, 1.1, 3.5 * k);
   };
 
@@ -506,7 +508,7 @@ export function init(ctx) {
     const i = bn++; _c.set(color === undefined ? 0x66ccff : color);
     bq.ax[i] = a.x; bq.ay[i] = a.y; bq.az[i] = a.z; bq.bx[i] = b.x; bq.by[i] = b.y; bq.bz[i] = b.z;
     bq.r[i] = _c.r; bq.g[i] = _c.g; bq.b[i] = _c.b;
-    bq.w[i] = (o && o.width) || .13; bq.j[i] = (o && o.jitter !== undefined) ? o.jitter : .06; bq.seg[i] = Math.min(BEAM_SEG, (o && o.segments) || 12);
+    bq.w[i] = (o && o.width) || .13; bq.j[i] = (o && o.jitter !== undefined) ? o.jitter : .06; bq.seg[i] = BEAM_SEG;
     bq.fl[i] = (o && o.flicker !== undefined) ? o.flicker : .25;
     if (!o || o.endGlow !== false) {
       const w = bq.w[i];
@@ -532,7 +534,7 @@ export function init(ctx) {
         const f = s / segs, env = Math.sin(f * Math.PI);
         let j1 = 0, j2 = 0;
         if (s > 0 && s < segs) {    // random-walk jitter with envelope: lightning-like, tight at the ends
-          j1 = (prevJ1 * .45 + (rnd() - .5) * 2 * jit * len * .22) ; j2 = (prevJ2 * .45 + (rnd() - .5) * 2 * jit * len * .22);
+          j1 = prevJ1 * .72 + (rnd() - .5) * 2 * jit * len * .09; j2 = prevJ2 * .72 + (rnd() - .5) * 2 * jit * len * .09;
           prevJ1 = j1; prevJ2 = j2; j1 *= env > .0 ? Math.min(1, env * 2.2) : 0; j2 *= Math.min(1, env * 2.2);
         }
         const cx = ax + sx * f + px * j1 + qx * j2, cy = ay + sy * f + py * j1 + qy * j2, cz = az + sz * f + pz * j1 + qz * j2;
@@ -576,14 +578,14 @@ export function init(ctx) {
       if (f & (F_SPLAT | F_BOUNCE | F_DIE_GROUND)) {
         const gy = hasH ? (c.terrain.heightAt(x, z) || 0) : 0;
         if (y <= gy + 0.04 && vy < 0) {
-          if (f & F_SPLAT) { decal('splat', x, z, sim[o + SPLAT], _lc.setRGB(sim[o + R0] / 1.8, sim[o + G0] / 1.8, sim[o + B0] / 1.8), {residual: .3}); n--; if (i !== n) sim.copyWithin(o, n * S, n * S + S); continue; }
+          if (f & F_SPLAT) { decal('splat', x, z, sim[o + SPLAT], _lc.setRGB(sim[o + R0] / 1.8, sim[o + G0] / 1.8, sim[o + B0] / 1.8), {residual: .16}); n--; if (i !== n) sim.copyWithin(o, n * S, n * S + S); continue; }
           if (f & F_DIE_GROUND) { n--; if (i !== n) sim.copyWithin(o, n * S, n * S + S); continue; }
           y = gy + 0.04; vy *= -0.32; vx *= 0.6; vz *= 0.6; sim[o + SPIN] *= 0.5;
           if (Math.abs(vy) < 0.8) vy = 0;
         }
       }
       sim[o + X] = x; sim[o + Y] = y; sim[o + Z] = z; sim[o + VX] = vx; sim[o + VY] = vy; sim[o + VZ] = vz;
-      const t = age / life, rot = sim[o + ROT] + sim[o + SPIN] * age;
+      const t = age / life, tc = 1 - (1 - t) * (1 - t) * (1 - t), rot = sim[o + ROT] + sim[o + SPIN] * age;
       const gr = Math.pow(t, sim[o + GROW]), s0 = sim[o + S0];
       const size = s0 + (sim[o + S1] - s0) * gr;
       const fi = sim[o + FI], fin = fi > 0 ? Math.min(1, t / fi) : 1, fout = Math.pow(1 - t, sim[o + FO]);
@@ -591,8 +593,8 @@ export function init(ctx) {
       if (f & F_FLICKER) a *= 0.65 + 0.35 * Math.sin(age * 38 + sim[o + ROT] * 17);
       ps[w] = x; ps[w + 1] = y; ps[w + 2] = z; ps[w + 3] = size;
       pv[w] = vx; pv[w + 1] = vy; pv[w + 2] = vz; pv[w + 3] = sim[o + STRETCH];
-      pc[w] = sim[o + R0] + (sim[o + R1] - sim[o + R0]) * t; pc[w + 1] = sim[o + G0] + (sim[o + G1] - sim[o + G0]) * t; pc[w + 2] = sim[o + B0] + (sim[o + B1] - sim[o + B0]) * t; pc[w + 3] = a;
-      pm[w] = rot; pm[w + 1] = sim[o + CELL]; pm[w + 2] = sim[o + ADD0] + (sim[o + ADD1] - sim[o + ADD0]) * t; pm[w + 3] = (f & F_FLAT) ? 1 : 0;
+      pc[w] = sim[o + R0] + (sim[o + R1] - sim[o + R0]) * tc; pc[w + 1] = sim[o + G0] + (sim[o + G1] - sim[o + G0]) * tc; pc[w + 2] = sim[o + B0] + (sim[o + B1] - sim[o + B0]) * tc; pc[w + 3] = a;
+      pm[w] = rot; pm[w + 1] = sim[o + CELL]; pm[w + 2] = sim[o + ADD0] + (sim[o + ADD1] - sim[o + ADD0]) * tc; pm[w + 3] = (f & F_FLAT) ? 1 : 0;
       i++;
     }
     L.geo.instanceCount = n;

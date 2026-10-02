@@ -46,8 +46,8 @@ export class BuildUI{
     this.bk=document.createElement('div');this.bk.id='bk';this.bk.textContent='[B] BUILD';root.appendChild(this.bk);this.last='';
   }
   setHint(h){this.hint.innerHTML=h}
-  update(res,open,sel,msg){
-    this.el.classList.toggle('off',!open);this.bk.style.opacity=open?0:.85;if(!open)return;
+  update(res,open,sel,msg,useHud){this.row.style.display=useHud?'none':'flex';
+    this.el.classList.toggle('off',!open);this.bk.style.opacity=(open||useHud)?0:.85;if(!open)return;
     const key=ORDER.map(t=>Object.entries(SPECS[t].cost).map(([k,v])=>res[k]>=v?1:0).join('')).join('|')+sel;
     if(key!==this.last){this.last=key;for(const t of ORDER){const s=SPECS[t],c=this.cards[t];let ok=true;
       c.querySelectorAll('span').forEach(sp=>{const bad=res[sp.dataset.k]<s.cost[sp.dataset.k];sp.className=bad?'bad':'';if(bad)ok=false});c.classList.toggle('no',!ok);c.classList.toggle('sel',sel===t)}}

@@ -102,7 +102,7 @@ export function buildHero(M){
   for(let i=0;i<4;i++)tor(torso,.17+(i%2)*.012,.03,M.black,0,.04+i*.075,0,Math.PI/2);
   cyl(torso,.16,.17,.34,M.dark,0,.17,0);
   // chest shell
-  bevExtrude([[-.26,0],[.26,0],[.42,.66],[.2,.8],[-.2,.8],[-.42,.66]],.38,.05,M.armor,torso,0,.3,0);
+  bevExtrude([[-.26,0],[.26,0],[.42,.56],[.22,.7],[-.22,.7],[-.42,.56]],.38,.05,M.armor,torso,0,.3,0);
   bevExtrude([[-.2,0],[.2,0],[.3,.4],[.12,.5],[-.12,.5],[-.3,.4]],.1,.035,M.armor,torso,0,.38,.24);
   rb(torso,.06,.5,.04,.015,M.accent,0,.62,.31);
   rb(torso,.5,.05,.06,.02,M.dark,0,.5,.27,.2);
@@ -113,13 +113,13 @@ export function buildHero(M){
   for(const s of [-1,1]){rb(torso,.07,.24,.04,.015,M.glow,s*.2,.6,.285,.2,0,s*.1);rb(torso,.14,.3,.05,.02,M.dark,s*.2,.6,.275,.2,0,s*.1)}
   H.core=[...torso.children].filter(c=>c.material===M.glow);
   // neck, collar
-  cyl(torso,.1,.12,.14,M.dark,0,1.08,0);
-  rb(torso,.46,.1,.36,.045,M.armor,0,1.02,0);
+  cyl(torso,.1,.12,.2,M.dark,0,1.08,0);
+  rb(torso,.44,.1,.34,.045,M.armor,0,.98,0);
   // head
-  const head=new THREE.Group();head.position.set(0,1.2,.02);torso.add(head);H.head=head;
-  const helm=sph(head,.2,M.armor,0,.02,0,1,1.06,1.14);
+  const head=new THREE.Group();head.position.set(0,1.3,.03);torso.add(head);H.head=head;
+  const helm=sph(head,.23,M.armor,0,.02,0,1,1.06,1.12);
   rb(head,.34,.2,.06,.03,M.dark,0,-.07,.19,.15);
-  add(head,new THREE.SphereGeometry(.208,20,10,Math.PI/2-.95,1.9,Math.PI*.3,Math.PI*.24),M.visor,0,.02,0).scale.set(1,1.06,1.14);
+  add(head,new THREE.SphereGeometry(.238,20,10,Math.PI/2-.95,1.9,Math.PI*.3,Math.PI*.24),M.visor,0,.02,0).scale.set(1,1.06,1.12);
   rb(head,.03,.07,.06,.01,M.accent,.0,.2,.1,.4);
   for(const s of [-1,1]){cyl(head,.07,.07,.07,M.dark,s*.205,0,-.01,0,0,Math.PI/2);cyl(head,.04,.04,.075,M.glow,s*.205,0,-.01,0,0,Math.PI/2,12);
     rb(head,.04,.1,.2,.015,M.accent,s*.17,.1,-.04,0,0,s*-.3)}
@@ -160,7 +160,7 @@ export function buildHero(M){
   tube(torso,[[-.12,.4,-.2],[-.25,.2,-.25],[-.3,.0,-.1],[-.26,-.1,.1]],.02,M.rubber);
   tube(torso,[[.06,.4,-.2],[.1,.25,-.27],[.0,.1,-.2],[-.1,.1,-.2]],.012,M.glow);
   // shoulders
-  H.shoulder=[-1,1].map(s=>{const g=new THREE.Group();g.position.set(s*.5,.76,0);torso.add(g);
+  H.shoulder=[-1,1].map(s=>{const g=new THREE.Group();g.position.set(s*.5,.7,0);torso.add(g);
     const pad=new THREE.Group();pad.rotation.z=s*-.28;g.add(pad);
     add(pad,new THREE.SphereGeometry(.25,24,12,0,Math.PI*2,0,Math.PI*.55),M.armor,s*.04,0,0).scale.set(1,.72,1.12);
     tor(pad,.245,.022,M.dark,s*.04,-.005,0,Math.PI/2).scale.set(1,1.12,1);

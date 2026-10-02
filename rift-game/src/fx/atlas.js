@@ -28,13 +28,13 @@ gens[C.GLOW] = (u, v) => {
 };
 const smoke = seed => (u, v) => {
   const r = Math.sqrt(u * u + v * v);
-  const wx = fbm(u * 1.6 + seed, v * 1.6 + 3, seed, 3) - 0.5, wy = fbm(u * 1.6 + 9, v * 1.6 + seed, seed + 5, 3) - 0.5;
-  const n = fbm(u * 2.6 + wx * 1.6 + seed, v * 2.6 + wy * 1.6, seed + 11, 5);
-  const n2 = fbm((u - 0.06) * 2.6 + wx * 1.6 + seed, (v - 0.06) * 2.6 + wy * 1.6, seed + 11, 5);
-  const mask = sstep(1.0, 0.25, r + (n - 0.5) * 0.85);
-  const shade = clamp(0.55 + (n2 - n) * 7 + (0.5 - r) * 0.3);
-  const g = 0.35 + 0.65 * shade;
-  out[0] = out[1] = out[2] = g; out[3] = clamp(mask * (0.45 + n * 0.85));
+  const wx = fbm(u * 1.1 + seed, v * 1.1 + 3, seed, 2) - 0.5, wy = fbm(u * 1.1 + 9, v * 1.1 + seed, seed + 5, 2) - 0.5;
+  const n = fbm(u * 1.9 + wx * 0.7 + seed, v * 1.9 + wy * 0.7, seed + 11, 4);
+  const n2 = fbm((u - 0.07) * 1.9 + wx * 0.7 + seed, (v - 0.07) * 1.9 + wy * 0.7, seed + 11, 4);
+  const mask = sstep(1.0, 0.1, r + (n - 0.5) * 0.7);
+  const shade = clamp(0.62 + (n2 - n) * 4.5 + (0.45 - r) * 0.25);
+  const g = 0.4 + 0.6 * shade;
+  out[0] = out[1] = out[2] = g; out[3] = clamp(Math.pow(mask, 1.25) * (0.55 + n * 0.7));
 };
 gens[C.SMOKE_A] = smoke(3); gens[C.SMOKE_B] = smoke(41); gens[C.SMOKE_C] = smoke(97);
 gens[C.SPARK] = (u, v) => {
@@ -50,9 +50,9 @@ gens[C.RING] = (u, v) => {
   const r = Math.sqrt(u * u + v * v), ang = Math.atan2(v, u);
   const nz = 0.75 + 0.25 * vnoise(ang * 3 + 20, r * 4, 7) + 0.1 * vnoise(ang * 11, 3, 9);
   const d = r - 0.74;
-  const band = Math.exp(-d * d * (d < 0 ? 70 : 260));
+  const band = Math.exp(-d * d * (d < 0 ? 160 : 520));
   const inner = (r < 0.74 ? 0.35 * sstep(0.1, 0.74, r) * sstep(0.74, 0.62, r + 0.0) : 0) * 0.0;
-  const trail = r < 0.74 ? 0.28 * Math.pow(sstep(0.3, 0.74, r), 2.2) : 0;
+  const trail = r < 0.74 ? 0.22 * Math.pow(sstep(0.3, 0.74, r), 2.6) : 0;
   out[0] = out[1] = out[2] = 1; out[3] = clamp((band * nz + trail) * sstep(0.98, 0.9, r));
 };
 const flame = seed => (u, v) => {
@@ -70,8 +70,8 @@ gens[C.DEBRIS] = (u, v) => {
   const R = 0.5 + 0.3 * vnoise(ang * 1.7 + 50, 1, 3) + 0.1 * Math.sin(ang * 5 + 1.3) * vnoise(ang * 4, 2, 4);
   const inside = sstep(R + 0.03, R - 0.03, r);
   // faceted shading: light from upper-left
-  const facet = Math.floor((ang + Math.PI) / (Math.PI * 2) * 6);
-  const fl = 0.35 + 0.65 * h2(facet, 3, 8);
+  const facet = Math.floor((ang + Math.PI) / (Math.PI * 2) * 9);
+  const fl = 0.6 + 0.4 * h2(facet, 3, 8);
   const shade = clamp(fl * 0.8 + (-(u + v)) * 0.25 + fbm(u * 6, v * 6, 12, 3) * 0.3 + 0.15);
   out[0] = out[1] = out[2] = shade; out[3] = inside;
 };
@@ -97,10 +97,10 @@ gens[C.SCORCH] = (u, v) => {
 const splat = seed => (u, v) => {
   const r = Math.sqrt(u * u + v * v), ang = Math.atan2(v, u);
   const wob = fbm(u * 2.5 + seed, v * 2.5, seed, 4) - 0.5;
-  let d = r - (0.34 + wob * 0.34 + 0.12 * vnoise(ang * 3 + seed, 2, seed + 1));
+  let d = r - (0.4 + wob * 0.3 + 0.08 * vnoise(ang * 3 + seed, 2, seed + 1));
   // radial arms
-  const arm = Math.pow(vnoise(ang * 4 + seed * 3, 0.5, seed + 2), 3) * 0.55 * sstep(0.1, 0.5, r);
-  d -= arm * sstep(0.95, 0.35, r) * 0.6;
+  const arm = Math.pow(vnoise(ang * 2.3 + seed * 3, 0.5, seed + 2), 2) * 0.4 * sstep(0.1, 0.5, r);
+  d -= arm * sstep(0.95, 0.35, r) * 0.45;
   let m = sstep(0.03, -0.03, d);
   // droplets
   for (let i = 0; i < 11; i++) {
@@ -109,7 +109,8 @@ const splat = seed => (u, v) => {
     m = Math.max(m, sstep(s, s * 0.6, Math.sqrt(dx * dx + dy * dy)) * 0);
     m = Math.max(m, 1 - sstep(s * 0.7, s, Math.sqrt(dx * dx + dy * dy)));
   }
-  const thick = clamp(0.5 - d * 2.4) * (0.6 + 0.4 * fbm(u * 6, v * 6, seed + 9, 3));
+  let thick = clamp(0.5 - d * 2.4) * (0.6 + 0.4 * fbm(u * 6, v * 6, seed + 9, 3));
+  thick = Math.max(thick, m * 0.55);
   out[0] = clamp(thick); out[1] = clamp(thick); out[2] = clamp(thick); out[3] = clamp(m * sstep(1, 0.88, r));
 };
 gens[C.SPLAT_A] = splat(7); gens[C.SPLAT_B] = splat(71);
@@ -130,7 +131,7 @@ gens[C.BLOB] = (u, v) => {
 gens[C.PLUS] = (u, v) => {
   const ax = Math.abs(u), ay = Math.abs(v);
   const arm = Math.min(Math.max(ax, ay * 0 + ax) , 1);
-  const a = Math.max(sstep(0.24, 0.16, ay) * sstep(0.8, 0.7, ax), sstep(0.24, 0.16, ax) * sstep(0.8, 0.7, ay));
+  const a = Math.max(sstep(0.3, 0.1, ay) * sstep(0.85, 0.6, ax), sstep(0.3, 0.1, ax) * sstep(0.85, 0.6, ay));
   const glow = 0.35 * Math.exp(-(u * u + v * v) * 5);
   out[0] = out[1] = out[2] = 1; out[3] = clamp(a * 0.95 + glow);
 };
