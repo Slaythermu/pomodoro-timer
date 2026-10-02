@@ -1,0 +1,2 @@
+{"name":"rift-game","private":true,"type":"module","scripts":{"dev":"vite","build":"vite build","shot":"node tools/shot.mjs"},
+"dependencies":{"three":"^0.170.0"},"devDependencies":{"vite":"^5.4.0","playwright-core":"^1.49.0"}}
