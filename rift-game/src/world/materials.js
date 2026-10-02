@@ -141,5 +141,5 @@ void main(){vec3 p=position+vec3(sin(uTime*.3+aS.x*20.)*1.5,uTime*aS.y*.15+sin(u
  p=mod(p-uC+uBox*.5,uBox)-uBox*.5;vec3 wp=p+uC;wp.y=.4+mod(wp.y-.4,uBox.y);
  vec4 mv=viewMatrix*vec4(wp,1.);gl_Position=projectionMatrix*mv;
  float tw=.5+.5*sin(uTime*(1.+aS.z*2.)+aS.x*40.);vA=tw*(1.-smoothstep(.35,.5,length(p.xz)/uBox.x))*smoothstep(0.,2.,wp.y);vC=aCol;
- gl_PointSize=clamp(aS.w*(130./-mv.z),1.5,9.);}`,
-    fragmentShader:`varying vec3 vC;varying float vA;void main(){vec2 d=gl_PointCoord-.5;float r=length(d)*2.;float a=smoothstep(1.,0.,r);a*=a;gl_FragColor=vec4(vC*(1.+a*2.),a*vA*.9);}`})}
+ gl_PointSize=clamp(aS.w*(70./-mv.z),1.5,5.);}`,
+    fragmentShader:`varying vec3 vC;varying float vA;void main(){vec2 d=gl_PointCoord-.5;float r=length(d)*2.;float a=smoothstep(1.,0.,r);a*=a;gl_FragColor=vec4(vC*(.6+a),a*vA*.4);}`})}

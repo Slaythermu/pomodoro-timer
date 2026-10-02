@@ -66,7 +66,7 @@ function roots(gb,R,r,n,col){for(let k=0;k<n;k++){const a=k/n*6.28+R()*.5,len=.7
 // ===== TREES =====
 const TREE_PAL=[
   {b:[.02,.15,.12],t:[.1,.7,.62],tg:1.4,pod:[.3,1,.9]},   // teal
-  {b:[.1,.03,.14],t:[.62,.2,.78],tg:1.5,pod:[1,.5,1]},    // violet
+  {b:[.08,.03,.12],t:[.5,.16,.62],tg:1.3,pod:[1,.35,.9]},    // violet
   {b:[.03,.1,.2],t:[.18,.5,.95],tg:1.5,pod:[.5,.9,1]}];   // blue
 export function buildTree(variant,seed){
   const R=rng(seed*131+variant*17+5),trunk=new GB(),can=new GB();
@@ -117,7 +117,7 @@ export function buildBulbPlant(seed){
     // sway attr
     const g=tube.build();gb.addGeo(g,new THREE.Matrix4(),(p,nn)=>({c:[.04,.2,.15],g:.0,s:Math.pow(p.y/H,1.5)*.6}));
     const e=pts[5],bulb=new THREE.SphereGeometry(.09+R()*.05,7,6);bulb.scale(1,1.3,1);
-    const hue=R();const col=hue<.5?[.3,1,.9]:hue<.8?[1,.5,.9]:[1,.85,.4];
+    const hue=R();const col=hue<.5?[.05,.9,.75]:hue<.8?[.9,.12,.65]:[.9,.55,.08];
     gb.addGeo(bulb,new THREE.Matrix4().makeTranslation(e.x,e.y,e.z),()=>({c:col,g:2.6,s:.7}));
     for(let j=0;j<4;j++)addFrond(gb,V(pts[2].x,pts[2].y,pts[2].z),R()*6.28,.5,.35,.14,1,[.03,.12,.1],[.1,.5,.4],0,.3,.8,3)}
   return gb.build()}
@@ -125,18 +125,18 @@ export function buildGrassTuft(seed){
   const R=rng(seed*29+3),gb=new GB();const n=8;
   for(let b=0;b<n;b++){const a=R()*6.283,off=R()*.22,bx=Math.cos(a)*off,bz=Math.sin(a)*off,H=.35+R()*.5,w=.045+R()*.03,yaw=R()*6.283,lean=.15+R()*.45;
     const cx=Math.cos(yaw),cz=Math.sin(yaw);const ids=[];const rows=3;
-    const c0=[.015,.07,.06],c1=[.1+R()*.15,.55+R()*.2,.4+R()*.2];
+    const c0=[.012,.05,.05],c1=[.05+R()*.1,.38+R()*.2,.32+R()*.15];
     for(let k=0;k<=rows;k++){const t=k/rows,hx=bx+cx*lean*t*t*H,hz=bz+cz*lean*t*t*H,hy=t*H*(1-.15*t),ww=w*(1-t*t*.95);
-      const col=mixc(c0,c1,Math.pow(t,.8)),gl=.1+t*.5,s=t*t;
+      const col=mixc(c0,c1,Math.pow(t,.8)),gl=t*t*.28,s=t*t;
       ids.push([gb.vert(hx-cz*ww,hy,hz+cx*ww,0,.6,0,0,t,col[0],col[1],col[2],gl,s),gb.vert(hx+cz*ww,hy,hz-cx*ww,0,.6,0,1,t,col[0],col[1],col[2],gl,s)])}
     for(let k=0;k<rows;k++){const a0=ids[k],b0=ids[k+1];gb.tri(a0[0],b0[0],a0[1]);gb.tri(a0[1],b0[0],b0[1])}}
   return gb.build()}
 
 // ===== MUSHROOMS =====
-const MUSH_PAL=[{cap:[.1,.5,.95],rim:[.4,1,1],spot:[.6,1,1],stem:[.55,.5,.7]},{cap:[.75,.1,.6],rim:[1,.45,.8],spot:[1,.8,1],stem:[.6,.45,.6]},{cap:[.95,.4,.08],rim:[1,.8,.3],spot:[1,.95,.5],stem:[.7,.55,.45]}];
+const MUSH_PAL=[{cap:[.02,.16,.55],rim:[.1,.7,.95],spot:[.5,1,1],stem:[.3,.28,.42]},{cap:[.42,.03,.32],rim:[.9,.2,.6],spot:[1,.7,1],stem:[.36,.26,.34]},{cap:[.55,.16,.02],rim:[1,.55,.1],spot:[1,.9,.4],stem:[.42,.32,.26]}];
 export function buildMushroom(variant,seed){
   const R=rng(seed*53+variant*7+2),gb=new GB(),P=MUSH_PAL[variant];
-  const sh=1.5+R()*.5,sr=.16+R()*.04,capR=1.1+R()*.35,capH=capR*(.5+R()*.2);
+  const sh=1.5+R()*.5,sr=.16+R()*.04,capR=1.1+R()*.35,capH=capR*(.7+R()*.3);
   const sp=[];for(let k=0;k<=8;k++){const t=k/8;sp.push(new THREE.Vector2(sr*(1+.9*Math.pow(1-t,3))*(1+.15*Math.sin(t*6)),t*sh))}
   gb.addGeo(new THREE.LatheGeometry(sp,10),new THREE.Matrix4(),(p,n)=>({c:mixc([.35,.3,.45],P.stem,p.y/sh),g:.15,s:0}));
   const cp=[new THREE.Vector2(sr*.9,sh-.05)];
@@ -146,7 +146,7 @@ export function buildMushroom(variant,seed){
   gb.addGeo(new THREE.LatheGeometry(cp,16),new THREE.Matrix4(),(p,n)=>{
     const under=n.y<-.4,rim=Math.hypot(p.x,p.z)/capR;const top=clamp((p.y-sh)/capH,0,1);
     if(under)return{c:mixc([.1,.04,.12],P.rim,Math.min(1,rim*rim)),g:1.1*rim,s:0};
-    return{c:mixc(P.rim,P.cap,Math.min(1,top*2.2)),g:.25+.5*(1-top),s:0}});
+    return{c:mixc(P.rim,P.cap,Math.min(1,top*2.2)),g:.06+.25*(1-top),s:0}});
   const ns=7+(R()*5|0);
   for(let k=0;k<ns;k++){const a=R()*6.28,d=R()*.8,rr=capR*d,hh=sh+capH*(.16+.84*Math.sqrt(Math.max(0,1-d*d)))*1.0;
     const g=new THREE.SphereGeometry(.07+R()*.1,6,5);g.scale(1,.45,1);

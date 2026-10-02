@@ -39,20 +39,20 @@ function rock(u,v,o){
   const warp=fbm(u*4,v*4,3,33,4)*2.2;
   const band=Math.sin((v*9+warp)*Math.PI*2)*.5+.5;const band2=Math.sin((v*23+warp*2.5+f2)*Math.PI*2)*.5+.5;
   worley(u*9,v*9,34,9,W);const crack=1-sm(0,.05,W[1]-W[0]);
-  const col=[0,0,0];mix3(col,[.17,.15,.2],[.38,.35,.4],band*.6+f1*.4);
+  const crk=sm(.5,.68,fbm(u*3,v*3,2,36,3));const col=[0,0,0];mix3(col,[.17,.15,.2],[.38,.35,.4],band*.6+f1*.4);
   const rust=sm(.6,.85,fbm(u*5,v*5,3,35,5)*(.6+band*.5));col[0]=lerp(col[0],.42,rust*.45);col[1]=lerp(col[1],.27,rust*.45);col[2]=lerp(col[2],.24,rust*.45);
   const k=.8+band2*.25+f2*.25;col[0]*=k;col[1]*=k;col[2]*=k*1.02;
-  col[0]*=1-crack*.65;col[1]*=1-crack*.65;col[2]*=1-crack*.6;
-  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.8+f2*.15;o[4]=band*.3+band2*.12+f1*.4+f2*.2-crack*.5}
+  const cm=crack*crk;col[0]*=1-cm*.55;col[1]*=1-cm*.55;col[2]*=1-cm*.5;
+  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.8+f2*.15;o[4]=band*.3+band2*.12+f1*.4+f2*.2-cm*.35}
 function sand(u,v,o){
   const f1=fbm(u*4,v*4,4,41,4),f2=fbm(u*60,v*60,2,42,60);
   const warp=fbm(u*5,v*5,3,43,5)*1.6;
   const rip=Math.sin((u*14+v*5+warp*3)*Math.PI*2)*.5+.5;
   const col=[0,0,0];mix3(col,[.5,.38,.33],[.78,.62,.5],f1*.8+f2*.15);
-  const rk=.88+rip*.2;col[0]*=rk;col[1]*=rk;col[2]*=rk*.97;
+  const rk=.94+rip*.1;col[0]*=rk;col[1]*=rk;col[2]*=rk*.97;
   const gr=h2(Math.floor(u*512),Math.floor(v*512),9);col[0]+=(gr-.5)*.06;col[1]+=(gr-.5)*.05;col[2]+=(gr-.5)*.05;
   if(gr>.997){col[0]+=.3;col[1]+=.45;col[2]+=.5}
-  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.93;o[4]=rip*.4+f1*.2+f2*.1}
+  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.93;o[4]=rip*.18+f1*.3+f2*.15}
 function bark(u,v,o){
   const f=fbm(u*10,v*2.5,4,51,10),g=fbm(u*26,v*5,3,52,26);
   const ridge=1-Math.abs(vnoise(u*14+f*2.2,v*3,53,14)*2-1);

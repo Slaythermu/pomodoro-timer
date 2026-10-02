@@ -46,8 +46,8 @@ export function bakeSplat(hf,res=1024){
     const pt=hf.poolT(x,z);
     let sand=(1-sm(1.05,1.9+dn*.5,pt))*sm(-.9,.2,h-0);sand=Math.max(sand,sm(.78,.9,fbm(x*.05-7,z*.05+3,3,S+25))*.7*sm(10,20,r)*(1-sm(.35,.5,sl)));
     sand=Math.min(1,sand*1.2);
-    let wRock=Math.max(sm(.38,.62,sl),sm(.64,.76,rk)*sm(12,26,r));
-    let wVein=sm(.62,.74,vn)*sm(14,26,r);
+    let wRock=Math.max(sm(.38,.62,sl),sm(.6,.7,rk)*sm(12,26,r));
+    let wVein=sm(.53,.63,vn)*sm(14,26,r);
     let wMoss=sm(.4,.58,m)*(.35+.65*sm(5,18,r));
     let rem=1-sand;const rock=Math.min(rem,wRock*rem);rem-=rock;const vein=wVein*rem;rem-=vein;const moss=wMoss*rem;rem-=moss;const soil=rem;
     const o=(j*res+i)*4;data[o]=soil*255;data[o+1]=moss*255;data[o+2]=vein*255;data[o+3]=rock*255}

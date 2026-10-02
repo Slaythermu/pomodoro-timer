@@ -21,8 +21,8 @@ const geoCache=new Map();const G=(k,f)=>{if(!geoCache.has(k))geoCache.set(k,f())
 function makeLegs(rig,parent,defs,mat,kneeMat,o){
   const legs=[];
   for(const d of defs){
-    const upGeo=G(`${o.key}u`,()=>legSegGeo(o.L1,o.r0,o.r1,'upper',{}));
-    const loGeo=G(`${o.key}l`,()=>legSegGeo(o.L2,o.r1,o.r2,'lower',{claw:o.claw}));
+    const upGeo=G(`${o.key}u`,()=>legSegGeo(o.L1,o.r0,o.r1,'upper',{plates:o.plates!==false}));
+    const loGeo=G(`${o.key}l`,()=>legSegGeo(o.L2,o.r1,o.r2,'lower',{claw:o.claw,plates:o.plates!==false}));
     const kneeGeo=G(`${o.key}k`,()=>sph(o.r1*1.35,10,8));
     legs.push(new Leg({parent,hip:d.hip,home:d.home,L1:o.L1,L2:o.L2,upGeo,loGeo,mat,kneeGeo,kneeMat,group:d.group,bend:d.bend,stepDist:o.stepDist,stepH:o.stepH,stepTime:o.stepTime}));
   }
@@ -40,8 +40,8 @@ function bodyPose(rig,e,legs,ground,stand,t,pitchK=0.35){
 // ===================================================== BRUTE
 export function buildBrute(ctx,deb){
   const fl={value:0},root=new THREE.Group(),legRoot=new THREE.Group(),body=new THREE.Group();root.add(body);
-  const tB=tex('brute_body',{base:[0.1,0.09,0.16],glow:[0.2,0.95,0.75],cells:34,seed:11,veins:0.35}),tA=tex('brute_armor',{base:[0.5,0.44,0.38],glow:[1,0.4,0.08],cells:22,seed:23,veins:0.2});
-  const mBody=creatureMat(ctx,{tex:tB,flash:fl,glow:0xffffff,glowI:1.1,rep:2,rough:0.42}),mArm=creatureMat(ctx,{tex:tA,flash:fl,glow:0xffffff,glowI:0.9,rep:1.5,rough:0.3,metal:0.35,bump:2.2}),
+  const tB=tex('brute_body',{base:[0.1,0.09,0.16],glow:[0.2,0.95,0.75],cells:34,seed:11,veins:0.35}),tA=tex('brute_armor',{base:[0.3,0.23,0.22],glow:[1,0.4,0.08],cells:22,seed:23,veins:0.1});
+  const mBody=creatureMat(ctx,{tex:tB,flash:fl,glow:0xffffff,glowI:1.1,rep:2,rough:0.42}),mArm=creatureMat(ctx,{tex:tA,flash:fl,glow:0xffffff,glowI:0.5,rep:1.5,rough:0.3,metal:0.35,bump:2.2}),
     mFlesh=creatureMat(ctx,{color:0x5a1e3a,flash:fl,glow:0x330a1a,glowI:0.6,rough:0.2,coat:1,coatR:0.05,sheen:1});
   const glowM=HDR(3.2,1.2,0.25),eyeM=HDR(0.6,3,2.2),mawM=HDR(3,0.7,0.2);
   const wps=[];
@@ -110,7 +110,7 @@ export function buildBrute(ctx,deb){
 // ===================================================== SPITTER
 export function buildSpitter(ctx,deb){
   const fl={value:0},root=new THREE.Group(),legRoot=new THREE.Group(),body=new THREE.Group();root.add(body);
-  const tB=tex('spit_body',{base:[0.08,0.2,0.12],glow:[0.45,1,0.25],cells:30,seed:31,veins:0.45}),tA=tex('spit_arm',{base:[0.35,0.4,0.2],glow:[0.8,1,0.3],cells:18,seed:37,veins:0.3});
+  const tB=tex('spit_body',{base:[0.08,0.2,0.12],glow:[0.45,1,0.25],cells:30,seed:31,veins:0.45}),tA=tex('spit_arm',{base:[0.12,0.2,0.1],glow:[0.8,1,0.3],cells:18,seed:37,veins:0.2});
   const mBody=creatureMat(ctx,{tex:tB,flash:fl,glow:0xffffff,glowI:1.2,rep:1.5,rough:0.35}),mArm=creatureMat(ctx,{tex:tA,flash:fl,glow:0xffffff,glowI:0.8,rep:1,rough:0.25,metal:0.25});
   const mSac=creatureMat(ctx,{tex:tex('spit_sac',{base:[0.12,0.35,0.1],glow:[0.5,1,0.3],cells:26,seed:41,veins:0.8,size:128}),flash:fl,glow:0xffffff,glowI:1.5,rep:1.4,rough:0.12,coat:1,coatR:0.03,bump:0.6});
   mSac.transparent=true;mSac.opacity=0.93;
@@ -131,7 +131,7 @@ export function buildSpitter(ctx,deb){
   for(let i=0;i<3;i++)mesh(cone(0.09,0.3,5),mArm,sacG,0,0.5-i*0.04,-0.15-i*0.28,{rx:-0.6});
   const defs=[];
   for(const [z,hz] of [[0.5,1.15],[0.1,0.15],[-0.25,-1.0]])for(const sx of [-1,1])defs.push({hip:V(sx*0.28,-0.05,z),home:V(sx*(1.35),0,hz),group:(defs.length%2),bend:V(sx*0.25,1,0)});
-  const legs=makeLegs(null,legRoot,defs,mArm,mBody,{key:'spit',L1:1.0,L2:1.3,r0:0.1,r1:0.06,r2:0.03,claw:0.3,stepDist:0.65,stepH:0.4,stepTime:0.26});
+  const legs=makeLegs(null,legRoot,defs,mArm,mBody,{key:'spit',plates:false,L1:1.0,L2:1.3,r0:0.1,r1:0.06,r2:0.03,claw:0.3,stepDist:0.65,stepH:0.4,stepTime:0.26});
   const rig={root,legRoot,body,legs,flash:fl,mats:[mBody,mArm,mSac],
     visible(v){root.visible=v;legRoot.visible=v;for(const l of legs)l.setVisible(v)},
     reset(){for(const l of legs)l.reset();fl.value=0;this.pose=null},

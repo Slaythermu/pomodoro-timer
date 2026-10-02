@@ -284,7 +284,7 @@ export function init(ctx) {
     }
     wisps.material.uniforms.uColor.value.copy(params.fogColor).multiplyScalar(2.2).lerp(params.fogSunTint, 0.35);
     wisps.material.uniforms.uOpacity.value = 0.02 + params.fogDensity * 1.5;
-    motes.material.uniforms.uColor.value.copy(params.sunColor).lerp(_tmpC.setRGB(0.6, 1.0, 0.9), 0.35 + params.night * 0.4).multiplyScalar(1.6 + params.night * 2);
+    motes.material.uniforms.uColor.value.copy(params.sunColor).lerp(_tmpC.setRGB(0.6, 1.0, 0.9), 0.35 + params.night * 0.4).multiplyScalar(1.0 + params.night * 2);
 
     // point-light fade
     for (const l of pool) {

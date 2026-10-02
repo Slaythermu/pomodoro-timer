@@ -189,7 +189,7 @@ class AtmospherePass extends Pass {
     const vu = this.volMat.uniforms, cu = this.compMat.uniforms;
     vu.uProj.value.copy(camera.projectionMatrix);
     vu.uCamPos.value.copy(camera.position); cu.uCamPos.value.copy(camera.position);
-    vu.uFrame.value = (this.frame++ % 8);
+    vu.uFrame.value = (this.frame++ % 8); vu.uUseAo.value = this.o.ao ? 1 : 0; cu.uAoMix.value = this.o.ao ? 0.9 : 0;
     if (L) {
       const sh = L.sun.shadow;
       vu.tShadow.value = sh.map ? sh.map.texture : null;
@@ -215,7 +215,7 @@ const GradeShader = {
   name: 'RiftGrade',
   uniforms: {
     tDiffuse: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uTime: { value: 0 },
-    uExposure: { value: 1.0 }, uVig: { value: 0.55 }, uCA: { value: 0.0016 }, uGrain: { value: 0.03 },
+    uExposure: { value: 1.0 }, uVig: { value: 0.55 }, uCA: { value: 0.0007 }, uGrain: { value: 0.03 },
     uTilt: { value: 0.0 }, uPulseCol: { value: new THREE.Color(1, 0, 0) }, uPulse: { value: 0 }, uShake: { value: 0 },
     uTeal: { value: new THREE.Color(0.86, 1.0, 1.06) }, uOrange: { value: new THREE.Color(1.1, 0.97, 0.86) }, uSat: { value: 1.18 }, uNight: { value: 0 },
   },
@@ -288,7 +288,7 @@ export function init(ctx) {
 
   let bloom = null;
   if (opts.bloom) {
-    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), lowfx ? 0.38 : 0.62, 0.72, 0.82);
+    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), lowfx ? 0.3 : 0.42, 0.55, 1.2);
     composer.addPass(bloom);
   }
   const grade = new ShaderPass(GradeShader);

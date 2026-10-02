@@ -66,7 +66,7 @@ export function createProjectiles(ctx){
       bb.mat.color.setHex(w.color)}
     else if(idx===1){const f=take(flames);if(!f)return;f.alive=true;f.pos.copy(pos);const sp=.14;
       f.vel.set(dir.x+(Math.random()-.5)*sp*2,0,dir.z+(Math.random()-.5)*sp*2).normalize().multiplyScalar(w.speed*(.75+Math.random()*.4));
-      f.max=f.life=.42+Math.random()*.12;f.hit.clear();f.rot=Math.random()*6;f.spin=(Math.random()-.5)*6;f.s.visible=true;f.s.material.color.setHex(0xffe8a0);f.s.scale.setScalar(.4)}
+      f.max=f.life=.42+Math.random()*.12;f.hit.clear();f.rot=Math.random()*6;f.spin=(Math.random()-.5)*6;f.s.visible=true;f.s.material.color.setHex(0xffe8a0);f.s.scale.setScalar(.9)}
     else{const r=take(rockets);if(!r)return;r.alive=true;r.pos.copy(pos);r.dir.copy(dir);r.speed=12;r.life=2.2;r.g.visible=true;r.g.position.copy(pos);r.g.lookAt(_v.copy(pos).add(dir))}
   };
 
@@ -88,10 +88,10 @@ export function createProjectiles(ctx){
       const t=1-f.life/f.max;f.pos.addScaledVector(f.vel,dt);f.vel.multiplyScalar(1-1.6*dt);f.pos.y=gh(f.pos.x,f.pos.z)+1.1+t*.9;
       if(blocked(f.pos.x,f.pos.z,.1)){f.vel.multiplyScalar(.2)}
       f.rot+=f.spin*dt;f.s.material.rotation=f.rot;f.s.position.copy(f.pos);
-      f.s.scale.setScalar(.5+t*2.4);
-      const m=f.s.material;m.opacity=Math.min(1,(1-t)*1.6);
+      f.s.scale.setScalar(.9+t*2.8);
+      const m=f.s.material;m.opacity=Math.min(1,(1-t)*1.8);if(t<.5&&Math.random()<.04)light(f.pos,0xff8a20,2.2,7);
       // yellow-white -> orange -> deep red
-      m.color.setRGB(1,1-.62*t,.62-.6*t).multiplyScalar(1.2-.5*t);
+      m.color.setRGB(1,.78-.55*t,.34-.32*t).multiplyScalar(2.6-1.7*t);
       const hr=.7+t*1.6;
       for(const e of enemies()){if(e.alive===false||f.hit.has(e))continue;const dx=e.pos.x-f.pos.x,dz=e.pos.z-f.pos.z,r=hr+(e.radius||.6);if(dx*dx+dz*dz<r*r){f.hit.add(e);damage(e,WEAPONS[1].dmg*(1.3-t*.6),f.pos)}}
       if((f.hit.size&&Math.random()<.02))ctx.fx?.burst?.('spark',f.pos,{color:0xff8a20});

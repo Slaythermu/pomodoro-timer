@@ -7,5 +7,12 @@ const p=await b.newPage({viewport:{width:+w,height:+h}});const logs=[];p.on('con
 const t0=Date.now();
 await p.goto(`http://localhost:${port}/?manual=1&${query}`,{timeout:240000});await p.waitForFunction('window.__game',null,{timeout:240000});console.log('loaded',Date.now()-t0);
 if(script)await p.evaluate(fs.readFileSync(script,'utf8'));
-const t1=Date.now();await p.evaluate(`__step(${+frames})`);console.log('step ms',Date.now()-t1);await p.screenshot({path:out,timeout:240000});
+const cams=(process.env.CAM||'').split(';').filter(Boolean);
+const poss=(process.env.POS||'').split(';').filter(Boolean);
+if(!poss.length)for(const c of (cams.length?cams:['']))poss.push('');
+for(let k=0;k<poss.length;k++){const t1=Date.now();
+ if(poss[k]){const [x,z]=poss[k].split(',').map(Number);await p.evaluate(`(()=>{const g=window.__game;const y=g.terrain.heightAt(${x},${z});g.player.pos.set(${x},y,${z});if(g.player.vel)g.player.vel.set(0,0,0)})()`)}
+ await p.evaluate(`__step(${+frames})`);
+ if(cams[k]){const c=cams[k].split(',').map(Number);await p.evaluate(`(()=>{const g=window.__game;g.camera.position.set(${c[0]},${c[1]},${c[2]});g.camera.lookAt(${c[3]},${c[4]},${c[5]});g.camera.updateMatrixWorld();__step(0)})()`)}
+ console.log('step ms',Date.now()-t1);const f=poss.length>1?out.replace('.png','_'+k+'.png'):out;await p.screenshot({path:f,timeout:240000})}
 console.log(logs.join('\n')||'no console');await b.close();await srv.close();

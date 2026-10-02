@@ -120,11 +120,11 @@ export function init(ctx){
   for(let a=0;a<40000&&items.bulb.length<800;a++){const [x,z]=pt(110);if(waterDepth(x,z)>-.1)continue;sample(x,z);const pt2=hf.poolT(x,z);const reed=pt2<2.6?1:0;
     const w=(.03+bio.moss*.4+bio.vein*.5+reed*.9)*(1-bio.rock)*(.2+.8*sm(.4,.65,fbm(x*.05,z*.05,2,seed+51)));if(R()>w)continue;if(!occ.free(x,z,.2))continue;
     const s=(reed?1.3:.7)+R()*.8;items.bulb.push({x,y:heightAt(x,z)-.02,z,ry:R()*6.28,sx:s,sy:s*(.8+R()*.6),sz:s,rx:(R()-.5)*.15,rz:(R()-.5)*.15,c:jit(.9,1.1)})}
-  const GRC=[[1,1,1],[1.5,1.25,.5],[.65,.95,1.6],[1.4,.55,1.2],[1,1.3,.9]];
+  const GRC=[[1,1,1],[1.3,1.15,.65],[.7,.95,1.3],[1.15,.8,1.1]];
   for(let a=0;a<900000&&items.grass.length<110000;a++){const [x,z]=pt(112);sample(x,z);
     const cl=.25+.75*sm(.3,.6,fbm(x*.12+9,z*.12-4,2,seed+61));
-    const w=(bio.moss*1+bio.soil*.4+bio.vein*.18+bio.sand*.04)*cl*(.25+.75*sm(2,9,Math.hypot(x,z)));if(R()>w)continue;if(waterDepth(x,z)>-.1)continue;if(!occ.free(x,z,.15))continue;
-    const s=.7+R()*.9;const cc=GRC[R()<.6?0:1+(R()*4|0)];
+    const w=(bio.moss*1+bio.soil*.4+bio.vein*.18+bio.sand*.04)*cl*(.12+.88*sm(5,16,Math.hypot(x,z)));if(R()>w)continue;if(waterDepth(x,z)>-.1)continue;if(!occ.free(x,z,.15))continue;
+    const s=.7+R()*.9;const cc=GRC[R()<.78?0:1+(R()*3|0)];
     items.grass.push({x,y:heightAt(x,z)-.01,z,ry:R()*6.28,sx:s,sy:s*(.7+R()*.7),sz:s,rx:0,rz:0,c:new THREE.Color(cc[0]*lerp(.8,1.2,R()),cc[1]*lerp(.8,1.2,R()),cc[2]*lerp(.8,1.2,R()))})}
 
   // ---------- baked glow / AO map ----------
@@ -152,7 +152,7 @@ export function init(ctx){
   const mTrunk=foliageMat({map:barkMap,normalMap:barkN,rough:.85,cutaway:true,glowK:1,ns:1.4});
   const mFern=foliageMat({map:fernT,alphaTest:.45,double:true,wind:.45,glowK:2.2,rough:.7});
   const mGrass=foliageMat({double:true,wind:.35,glowK:1.7,rough:.85});
-  const mBulb=foliageMat({double:true,wind:.25,glowK:2.4,rough:.5});
+  const mBulb=foliageMat({double:true,wind:.25,glowK:1.5,rough:.5});
   const mMush=foliageMat({rough:.5,cutaway:true,glowK:2.0});
   const mMushS=foliageMat({rough:.5,glowK:2.0});
   const mRock=foliageMat({map:rockMap,normalMap:rockN,rough:.9,ns:1.6});
@@ -215,9 +215,9 @@ export function init(ctx){
     const m=new THREE.Mesh(geo,wmat);m.renderOrder=1;root.add(m)}
 
   // ---------- spores ----------
-  const SN=900,sp=new Float32Array(SN*3),sa=new Float32Array(SN*4),sc=new Float32Array(SN*3);
+  const SN=420,sp=new Float32Array(SN*3),sa=new Float32Array(SN*4),sc=new Float32Array(SN*3);
   for(let i=0;i<SN;i++){sp[i*3]=(R()-.5)*70;sp[i*3+1]=R()*16;sp[i*3+2]=(R()-.5)*70;sa[i*4]=R();sa[i*4+1]=.3+R()*1.2;sa[i*4+2]=R();sa[i*4+3]=.5+R()*1.1;
-    const c=R()<.6?[.2,.9,1]:R()<.6?[1,.35,.9]:[.7,1,.4];sc[i*3]=c[0];sc[i*3+1]=c[1];sc[i*3+2]=c[2]}
+    const c=R()<.6?[.1,.45,.5]:R()<.6?[.5,.18,.45]:[.35,.5,.2];sc[i*3]=c[0];sc[i*3+1]=c[1];sc[i*3+2]=c[2]}
   const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));sg.setAttribute('aS',new THREE.BufferAttribute(sa,4));sg.setAttribute('aCol',new THREE.BufferAttribute(sc,3));
   sg.boundingSphere=new THREE.Sphere(new THREE.Vector3(),1e5);const sMat=sporeMat(),spores=new THREE.Points(sg,sMat);spores.frustumCulled=false;spores.renderOrder=3;root.add(spores);
 

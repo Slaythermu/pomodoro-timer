@@ -33,10 +33,13 @@ export function init(ctx){
   ctx.state.weapon=0;ctx.state.weaponName=WEAPONS[0].name;ctx.state.dashCd=0;
   ctx.ev.on('damage-player',e=>P.damage(e.amount??e));
   const _gy=(x,z)=>ctx.terrain?.heightAt?ctx.terrain.heightAt(x,z):0;
-  const blocked=(x,z)=>ctx.terrain?.blocked?ctx.terrain.blocked(x,z,RADIUS*.8):false;
-  P.pos.y=_gy(0,0);
+  const blocked=(x,z)=>{
+    if(ctx.terrain?.blocked&&ctx.terrain.blocked(x,z,RADIUS*.8))return true;
+    const bl=ctx.buildings?.list;if(bl)for(const b of bl){if(b.alive===false||b.walkable)continue;const dx=b.pos.x-x,dz=b.pos.z-z,r=(b.radius||2)+RADIUS*.7;if(dx*dx+dz*dz<r*r)return true}
+    return false};
+  P.pos.set(0,0,8);P.pos.y=_gy(0,8);
   // find a free spawn spot
-  for(let r=0,a=0;blocked(P.pos.x,P.pos.z)&&r<40;r+=.5,a+=1.3){P.pos.set(Math.cos(a)*r,0,Math.sin(a)*r);P.pos.y=_gy(P.pos.x,P.pos.z)}
+  for(let r=0,a=0;ctx.terrain?.blocked?.(P.pos.x,P.pos.z,RADIUS)&&r<40;r+=.5,a+=1.3){P.pos.set(Math.cos(a)*r,0,8+Math.sin(a)*r);P.pos.y=_gy(P.pos.x,P.pos.z)}
 
   // dash trail sprites
   const gTex=glowTexture();const trail=[];
