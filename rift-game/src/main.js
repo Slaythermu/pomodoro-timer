@@ -26,8 +26,9 @@ const clock=new THREE.Clock();let fixed=q.get('dt')?+q.get('dt'):0;
 function frame(){const dt=fixed||Math.min(clock.getDelta(),0.05);ctx.time+=dt;ctx.input.update();
   ctx.hash.clear();
   for(const [n,m] of mods) if(m.update) m.update(dt,ctx);
+  ctx.input.endFrame();
   ctx.postfx.render?ctx.postfx.render(dt):renderer.render(scene,camera);
   requestAnimationFrame(frame)}
 // Test harness: advance N simulated frames then signal ready (used by tools/shot.mjs)
-window.__game=ctx;window.__step=(n,dt=1/60)=>{for(let i=0;i<n;i++){ctx.time+=dt;ctx.input.update();ctx.hash.clear();for(const [,m] of mods) if(m.update) m.update(dt,ctx);}ctx.postfx.render?ctx.postfx.render(dt):renderer.render(scene,camera)};
+window.__game=ctx;window.__step=(n,dt=1/60)=>{for(let i=0;i<n;i++){ctx.time+=dt;ctx.input.update();ctx.hash.clear();for(const [,m] of mods) if(m.update) m.update(dt,ctx);ctx.input.endFrame();}ctx.postfx.render?ctx.postfx.render(dt):renderer.render(scene,camera)};
 if(!q.get('manual'))requestAnimationFrame(frame);

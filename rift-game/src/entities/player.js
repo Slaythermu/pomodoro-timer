@@ -70,7 +70,7 @@ export function init(ctx){
     if(!P.alive){ix=iz=0}
     P.regenDelay=Math.max(0,P.regenDelay-dt);P.hitFlash=Math.max(0,P.hitFlash-dt*3);P.dashCd=Math.max(0,P.dashCd-dt);
     // weapon switching
-    for(let i=0;i<3;i++)if(inp.pressed.has('Digit'+(i+1))||inp.pressed.has('Numpad'+(i+1)))P.selectWeapon(i);
+    if(!ctx.state.building)for(let i=0;i<3;i++)if(inp.pressed.has('Digit'+(i+1))||inp.pressed.has('Numpad'+(i+1)))P.selectWeapon(i);
     // aim
     aimTarget.copy(inp.aim);
     const assist=P.alive?pickAssist(aimTarget,P.pos):null;
@@ -127,7 +127,7 @@ export function init(ctx){
     if(stepIdx!==lastFootStep){lastFootStep=stepIdx;if(spd>3&&!dashing){ctx.fx?.burst?.('spark',tmp.copy(P.pos).setY(P.pos.y+.05),{color:0x887766,count:2,scale:.4});}}
 
     // resources
-    const firing=P.alive&&inp.down&&!dashing;const w=WEAPONS[P.weapon];
+    const firing=P.alive&&inp.down&&!dashing&&!ctx.state.building;const w=WEAPONS[P.weapon];
     if(!firing||P.weapon!==1)flameOn=damp(flameOn,0,10,dt);
     st.energy=Math.min(100,st.energy+(firing&&w.cost?0:14)*dt+(dashing?0:0));
     if(P.regenDelay<=0&&P.alive)st.hp=Math.min(st.maxHp,st.hp+1.6*dt);

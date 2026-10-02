@@ -90,7 +90,9 @@ export function init(ctx){
     if(b.type==='wall')wallRefresh(b);dirty=true}
 
   // ---------- place ----------
+  const ALIAS={power:'generator',gen:'generator',gun:'turret',gunturret:'turret',plasmatower:'plasma',tower:'plasma',repair:'beacon',repairbeacon:'beacon',drill:'harvester',carbon:'harvester',command:'core'};
   function place(type,pos,opts={}){
+    type=ALIAS[String(type).toLowerCase().replace(/[\s_-]/g,'')]||type;
     const s=spec(type);if(!s)return null;
     let x,z;if(opts.exact){x=pos.x;z=pos.z}else{[x,z]=snap(type,pos.x,pos.z)}
     if(!opts.force){const why=check(type,x,z);if(why&&!(opts.free&&why==='Insufficient resources')){st.msg=`<i>${why}</i>`;return null}}
