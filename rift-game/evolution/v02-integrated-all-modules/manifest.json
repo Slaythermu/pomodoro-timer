@@ -1,0 +1,18 @@
+{
+ "version": 2,
+ "label": "integrated-all-modules",
+ "date": "2026-10-02T21:04:40.985Z",
+ "commit": "9bfad03",
+ "scenes": [
+  "01-overview",
+  "02-hero-closeup",
+  "03-combat-horde",
+  "04-base",
+  "05-vfx-explosions",
+  "06-hud-ui",
+  "07-title"
+ ],
+ "errors": [
+  "[01-overview] Failed to load resource: the server responded with a status of 404 (Not Found)"
+ ]
+}
