@@ -163,7 +163,7 @@ export function init(ctx){
   // ---------- combat helpers ----------
   const _v=new THREE.Vector3(),_w=new THREE.Vector3();
   function nearestEnemy(p,range,min=0){let best=null,bd=range*range;const l=ctx.enemies?.list;if(!l)return null;for(let i=0;i<l.length;i++){const e=l[i];if(!e.alive)continue;const dx=e.pos.x-p.x,dz=e.pos.z-p.z,d=dx*dx+dz*dz;if(d<bd&&d>=min*min&&e.pos.y===e.pos.y){bd=d;best=e}}return best}
-  function hurtEnemy(e,n,from){if(ctx.enemies?.damage)ctx.enemies.damage(e,n,from);else e.hp-=n}
+  function hurtEnemy(e,n,from){if(ctx.enemies?.damage)ctx.enemies.damage(e,n,from&&from.pos?from.pos:from);else e.hp-=n}
   function stepTurret(b,dt){
     b.retarget=(b.retarget||0)-dt;if(b.retarget<=0||(b.target&&!b.target.alive)){b.retarget=.15+Math.random()*.1;b.target=nearestEnemy(b.pos,spec('turret').range)}
     const e=b.target;b.cd=(b.cd||0)-dt;if(!e)return;
