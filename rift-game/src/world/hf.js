@@ -44,7 +44,7 @@ export function bakeSplat(hf,res=1024){
     const e=.9,sl=Math.hypot(hf.heightAt(x+e,z)-hf.heightAt(x-e,z),hf.heightAt(x,z+e)-hf.heightAt(x,z-e))/(2*e);
     const m=fbm(x*.028+10,z*.028,4,S+21),rk=fbm(x*.02-30,z*.02+7,4,S+22),vn=fbm(x*.04+5,z*.04-12,3,S+23),dn=fbm(x*.09,z*.09,2,S+24);
     const pt=hf.poolT(x,z);
-    let sand=(1-sm(1.05,1.9+dn*.5,pt))*sm(-.9,.2,h-0);sand=Math.max(sand,sm(.78,.9,fbm(x*.05-7,z*.05+3,3,S+25))*.7*sm(10,20,r)*(1-sm(.35,.5,sl)));
+    let sand=(1-sm(1.05,1.9+dn*.5,pt))*sm(-.9,.2,h-0);sand=Math.max(sand,sm(.84,.92,fbm(x*.05-7,z*.05+3,3,S+25))*.5*sm(14,26,r)*(1-sm(.35,.5,sl)));
     sand=Math.min(1,sand*1.2);
     let wRock=Math.max(sm(.38,.62,sl),sm(.6,.7,rk)*sm(12,26,r));
     let wVein=sm(.53,.63,vn)*sm(14,26,r);

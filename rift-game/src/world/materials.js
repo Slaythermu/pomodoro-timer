@@ -100,7 +100,7 @@ vec3 terrWN=normalize(tWN+pert*1.15);
 // ---------- WATER ----------
 export function waterMat(noiseTex){
   const u=THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{uTime:U.uTime,uNoise:{value:noiseTex},uSun:U.uSun}]);
-  return new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,fog:true,
+  return new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,fog:true,side:THREE.DoubleSide,
     vertexShader:`attribute float aDepth;varying float vD;varying vec3 vW;
 #include <fog_pars_vertex>
 void main(){vD=aDepth;vec4 wp=modelMatrix*vec4(position,1.);vW=wp.xyz;vec4 mvPosition=viewMatrix*wp;gl_Position=projectionMatrix*mvPosition;

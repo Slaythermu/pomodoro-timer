@@ -146,7 +146,7 @@ export function buildMushroom(variant,seed){
   gb.addGeo(new THREE.LatheGeometry(cp,16),new THREE.Matrix4(),(p,n)=>{
     const under=n.y<-.4,rim=Math.hypot(p.x,p.z)/capR;const top=clamp((p.y-sh)/capH,0,1);
     if(under)return{c:mixc([.1,.04,.12],P.rim,Math.min(1,rim*rim)),g:1.1*rim,s:0};
-    return{c:mixc(P.rim,P.cap,Math.min(1,top*2.2)),g:.06+.25*(1-top),s:0}});
+    const mt=.7+.6*noise3(p.x*4,p.y*4,p.z*4,5);const cc=mixc(P.rim,P.cap,Math.min(1,top*2.2));return{c:[cc[0]*mt,cc[1]*mt,cc[2]*mt],g:.06+.25*(1-top),s:0}});
   const ns=7+(R()*5|0);
   for(let k=0;k<ns;k++){const a=R()*6.28,d=R()*.8,rr=capR*d,hh=sh+capH*(.16+.84*Math.sqrt(Math.max(0,1-d*d)))*1.0;
     const g=new THREE.SphereGeometry(.07+R()*.1,6,5);g.scale(1,.45,1);
@@ -180,10 +180,10 @@ export function buildRock(seed,flat=1){
 // ===== CRYSTALS =====
 export function buildCrystalCluster(seed,variant=0){
   const R=rng(seed*61+variant*5+1),gb=new GB();
-  const pal=[[[.02,.1,.2],[.2,.95,1],[.7,1,1]],[[.1,.03,.2],[.7,.35,1],[1,.8,1]],[[.02,.14,.1],[.3,1,.6],[.9,1,.9]]][variant];
+  const pal=[[[.0,.05,.16],[.02,.55,.95],[.25,.85,1]],[[.06,.0,.16],[.45,.12,.9],[.75,.4,1]],[[.0,.1,.06],[.05,.8,.35],[.4,1,.6]]][variant];
   const n=5+(R()*5|0);
   for(let k=0;k<n;k++){
-    const main=k===0;const L=main?1.6+R()*1.2:.5+R()*1.1,r=main?.28+R()*.08:.1+R()*.1;
+    const main=k===0;const L=main?2.0+R()*1.4:.6+R()*1.3,r=main?.3+R()*.1:.11+R()*.1;
     const a=R()*6.283,tilt=main?(R()-.5)*.25:.25+R()*.55;
     const dir=V(Math.sin(tilt)*Math.cos(a),Math.cos(tilt),Math.sin(tilt)*Math.sin(a)).normalize();
     const org=main?V(0,-.05,0):V(Math.cos(a)*.18*(1+R()),-.05,Math.sin(a)*.18*(1+R()));

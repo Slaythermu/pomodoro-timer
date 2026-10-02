@@ -152,11 +152,11 @@ export function init(ctx){
   const mTrunk=foliageMat({map:barkMap,normalMap:barkN,rough:.85,cutaway:true,glowK:1,ns:1.4});
   const mFern=foliageMat({map:fernT,alphaTest:.45,double:true,wind:.45,glowK:2.2,rough:.7});
   const mGrass=foliageMat({double:true,wind:.35,glowK:1.7,rough:.85});
-  const mBulb=foliageMat({double:true,wind:.25,glowK:1.5,rough:.5});
+  const mBulb=foliageMat({double:true,wind:.25,glowK:1.1,rough:.5});
   const mMush=foliageMat({rough:.5,cutaway:true,glowK:2.0});
   const mMushS=foliageMat({rough:.5,glowK:2.0});
   const mRock=foliageMat({map:rockMap,normalMap:rockN,rough:.9,ns:1.6});
-  const mCry=foliageMat({rough:.12,metal:.25,glowK:3.2});
+  const mCry=foliageMat({rough:.15,metal:.2,glowK:2.0});
   for(let v=0;v<3;v++){const t=buildTree(v,seed+v*7);instance([{geo:t.trunk,mat:mTrunk},{geo:t.canopy,mat:mCan,depth:dCan}],items.tree[v],50,true)}
   for(let v=0;v<3;v++){const m=buildMushroom(v,seed+v);instance([{geo:m.geo,mat:mMush}],items.mush[v],50,true);
     instance([{geo:m.geo,mat:mMushS}],items.mushS.filter(i=>i.v===v),50,false)}
@@ -180,7 +180,7 @@ export function init(ctx){
     const m=new THREE.Mesh(geo,mat);m.receiveShadow=!additive;m.renderOrder=1;m.frustumCulled=false;root.add(m);return m};
   decalStatic('litter',320,1.4,3.2,[[.7,.5,.9],[.4,.8,.7],[.9,.6,.7],[.5,.6,.9]],false,(x,z,b)=>b.moss+b.soil>.5&&b.rock<.3,.8);
   decalStatic('crack',130,1.5,3.6,[[.5,.5,.5]],false,(x,z,b)=>b.soil>.45&&Math.hypot(x,z)>8,1);
-  decalStatic('moss',220,1.5,4,[[.12,.45,.3],[.1,.38,.35],[.2,.5,.2]],false,(x,z,b)=>b.soil+b.rock>.4&&b.sand<.3,1);
+  decalStatic('moss',220,1.5,4,[[.04,.28,.24],[.05,.22,.28],[.08,.3,.18]],false,(x,z,b)=>b.soil+b.rock>.4&&b.sand<.3,1);
   decalStatic('spores',170,1.5,3.6,[[.1,.9,1],[1,.3,.9],[.6,1,.5]],true,(x,z,b)=>b.moss+b.vein>.4,.8);
   // glowing ring-crack around spawn (rift scar)
   {const gb=new GB();const map=soft('crack'),sg=5;for(let k=0;k<7;k++){const a=k/7*6.28+R()*.5,d=8+R()*3,x=Math.cos(a)*d,z=Math.sin(a)*d,rad=2+R()*1.5,rot=R()*6.28,base=gb.count;

@@ -278,7 +278,7 @@ export function init(ctx) {
   const lowfx = q.get('lowfx') === '1' || ctx.lowfx;
   const flag = (k, def) => (q.has(k) ? q.get(k) !== '0' : def);
   const opts = {
-    msaa: lowfx ? 0 : 4, ao: flag('ao', !lowfx), vol: flag('vol', !lowfx), bloom: flag('bloom', true), scatter: 2.2,
+    msaa: lowfx ? 0 : 4, ao: flag('ao', !lowfx), vol: flag('vol', !lowfx), bloom: flag('bloom', true), scatter: 3.2,
   };
   const pr = renderer.getPixelRatio();
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, depthBuffer: false }));

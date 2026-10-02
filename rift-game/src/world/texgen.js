@@ -48,7 +48,7 @@ function sand(u,v,o){
   const f1=fbm(u*4,v*4,4,41,4),f2=fbm(u*60,v*60,2,42,60);
   const warp=fbm(u*5,v*5,3,43,5)*1.6;
   const rip=Math.sin((u*14+v*5+warp*3)*Math.PI*2)*.5+.5;
-  const col=[0,0,0];mix3(col,[.5,.38,.33],[.78,.62,.5],f1*.8+f2*.15);
+  const col=[0,0,0];mix3(col,[.34,.27,.26],[.58,.47,.38],f1*.8+f2*.15);
   const rk=.94+rip*.1;col[0]*=rk;col[1]*=rk;col[2]*=rk*.97;
   const gr=h2(Math.floor(u*512),Math.floor(v*512),9);col[0]+=(gr-.5)*.06;col[1]+=(gr-.5)*.05;col[2]+=(gr-.5)*.05;
   if(gr>.997){col[0]+=.3;col[1]+=.45;col[2]+=.5}
@@ -79,7 +79,7 @@ export function genLayer(fn,S,nStr,alb,nrm,off){
 }
 export function genGroundArrays(S=512){
   const alb=new Uint8Array(S*S*4*5),nrm=new Uint8Array(S*S*4*5);
-  const str=[5,6,8,7,3.5];
+  const str=[5,6,8,7,1.6];
   for(let l=0;l<5;l++)genLayer(FNS[l],S,str[l]*S/512*3.2,alb,nrm,l*S*S);
   return {alb,nrm,S,layers:5}}
 export function genSingle(name,S=256){
