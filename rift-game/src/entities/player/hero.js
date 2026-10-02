@@ -25,8 +25,9 @@ function lathe(prof,mat,p,x,y,z,rx=0,ry=0,rz=0,seg=20){return add(p,new THREE.La
 
 function tube(p,pts,r,mat){const c=new THREE.CatmullRomCurve3(pts.map(a=>V(...a)));return add(p,new THREE.TubeGeometry(c,24,r,6,false),mat,0,0,0)}
 
+const _d=V();
 function ik2(S,T,a,b,pole,E,Tout){
-  const d=Tout.copy(T).sub(S);let L=d.length();const mx=(a+b)*.998,mn=Math.abs(a-b)+.02;L=Math.min(Math.max(L,mn),mx);d.normalize();
+  const d=_d.copy(T).sub(S);let L=d.length();const mx=(a+b)*.998,mn=Math.abs(a-b)+.02;L=Math.min(Math.max(L,mn),mx);d.normalize();
   Tout.copy(S).addScaledVector(d,L);
   const x=(a*a-b*b+L*L)/(2*L),h=Math.sqrt(Math.max(a*a-x*x,0));
   const pr=V().copy(pole).addScaledVector(d,-pole.dot(d));if(pr.lengthSq()<1e-6)pr.set(0,0,1);pr.normalize();

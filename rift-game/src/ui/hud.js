@@ -37,7 +37,7 @@ export function init(ctx){
   <div id="over"><h1>RIFT LOST</h1><div class="sub">SIGNAL TERMINATED</div><div class="stats panel"></div><div class="cta">REDEPLOY</div></div>
   <div id="start"><div class="bars a"></div><div class="bars b"></div><div class="ver">PROJECT RIFTFALL // BUILD 0.1 // SECTOR 7-K</div>
    <div class="logo"><span class="g">RIFT<span class="amb">FALL</span></span><span class="l1">RIFTFALL</span><span class="l2">RIFTFALL</span></div>
-   <div class="rift"><svg viewBox="0 0 860 30" preserveAspectRatio="none"><path d="M0 15H300l14-12 18 24 20-30 18 30 14-18 12 6H860" fill="none" stroke="#2ef2d0" stroke-width="2"/><path d="M0 15H300l14-12 18 24 20-30 18 30 14-18 12 6H860" fill="none" stroke="#ffb43a" stroke-width="6" opacity=".18"/></svg></div>
+   <div class="rift"><svg viewBox="0 0 860 30" preserveAspectRatio="none"><path d="M0 15H380l14-12 18 24 20-30 18 30 14-18 12 6H860" fill="none" stroke="#2ef2d0" stroke-width="2"/><path d="M0 15H380l14-12 18 24 20-30 18 30 14-18 12 6H860" fill="none" stroke="#ffb43a" stroke-width="6" opacity=".18"/></svg></div>
    <div class="tag">SURVIVE &middot; BUILD &middot; BREAK THE RIFT</div><div class="cta">CLICK TO START</div>
    <div class="ctl"><span><b>WASD</b>MOVE</span><span><b>MOUSE</b>AIM</span><span><b>LMB</b>FIRE</span><span><b>1-9</b>WEAPON / BUILD</span></div><div class="scan2"></div></div>`;
   const el={res:{},};
