@@ -9,11 +9,11 @@ const M=new THREE.Matrix4(),Q=new THREE.Quaternion(),E=new THREE.Euler(),S=new T
 function buildGeo(){
   const b=new GeoBuilder(),R=rng(7);
   const chitin=(x,y,z,nx,ny)=>{const band=0.5+0.5*Math.sin(z*46);const top=Math.max(0,ny);
-    return [0.07+0.07*band+0.06*top,0.045+0.05*band,0.12+0.1*band+0.05*top]};
+    return [0.05+0.05*band+0.04*top,0.035+0.04*band+0.02*top,0.09+0.08*band+0.04*top]};
   const belly=(x,y,z,nx,ny)=>ny<-0.3?[0.35,0.18,0.3]:chitin(x,y,z,nx,ny);
   // abdomen (segmented by color banding) with glowing underbelly + dorsal stripe
   const ab=ellipsoid(0.2,0.17,0.34,14,10);
-  b.add(ab,M.makeTranslation(0,0.34,-0.3),{color:belly,glow:(x,y,z,t)=>{const lowGlow=Math.max(0,-(y-0.34)/0.17-0.4);const stripe=Math.abs(x)<0.03&&y>0.45?0.6:0;return Math.min(1,lowGlow*0.9+stripe+(Math.sin(z*46)>0.92?0.5:0))}});
+  b.add(ab,M.makeTranslation(0,0.34,-0.3),{color:belly,glow:(x,y,z,t)=>{const lowGlow=Math.max(0,-(y-0.34)/0.17-0.4);const stripe=Math.abs(x)<0.028&&y>0.42&&Math.sin(z*46+1.2)>0.2?0.85:0;const flank=Math.abs(x)>0.17&&Math.sin(z*46)>0.7?0.4:0;return Math.min(1,lowGlow*0.9+stripe+flank)}});
   b.add(ellipsoid(0.15,0.13,0.2,12,8),M.makeTranslation(0,0.37,0.06),{color:chitin,glow:0});
   // head + eyes + mandibles + antennae
   b.add(ellipsoid(0.11,0.09,0.13,12,8),M.makeTranslation(0,0.33,0.27),{color:[0.1,0.07,0.14]});
@@ -38,9 +38,9 @@ function buildGeo(){
     const z0=hz[k],spread=(k-1)*0.2,H=V(sx*0.1,0.37,z0),K=V(sx*(0.3+0.03*(1-Math.abs(k-1))),0.62,z0+spread*0.35),A=V(sx*0.5,0.28,z0+spread*0.9),F=V(sx*0.58+sx*0.05*k,0.0,z0+spread*1.15);
     const ph=((k+(sx>0?1:0))%2)*Math.PI+k*0.15,seg=[[H,K,0.032,0.026,0,0.38],[K,A,0.026,0.018,0.38,0.75],[A,F,0.018,0.006,0.75,1]];
     for(const [p,q,r0,r1,t0,t1] of seg){
-      b.add(taper(p,q,r0,r1,6),segMatrix(p,q),{color:(x,y,z,nx,ny,nz,t)=>legC(x,y,z,nx,ny,nz,t0+t*(t1-t0)),glow:(x,y,z,t)=>t0+t*(t1-t0)>0.93?0.9:0,phase:ph,side:sx,weight:t=>t0+t*(t1-t0)});
+      b.add(taper(p,q,r0,r1,6),segMatrix(p,q),{color:(x,y,z,nx,ny,nz,t)=>legC(x,y,z,nx,ny,nz,t0+t*(t1-t0)),glow:(x,y,z,t)=>t0+t*(t1-t0)>0.96?0.45:0,phase:ph,side:sx,weight:t=>t0+t*(t1-t0)});
     }
-    b.add(ellipsoid(0.034,0.034,0.034,6,5),M.makeTranslation(K.x,K.y,K.z),{color:[0.25,0.12,0.3],glow:0.5,phase:ph,side:sx,weight:0.38});
+    b.add(ellipsoid(0.034,0.034,0.034,6,5),M.makeTranslation(K.x,K.y,K.z),{color:[0.25,0.12,0.3],glow:0.12,phase:ph,side:sx,weight:0.38});
   }
   return b.build();
 }
@@ -79,7 +79,7 @@ totalEmissiveRadiance+=vec3(0.45,1.0,0.35)*vGl*vPu*1.6+vec3(1.0,0.8,0.6)*vFl*1.4
   }
   add(e){
     if(this.n>=this.max)return false;const i=this.n++;e.slot=i;this.slots[i]=e;
-    const c=new THREE.Color().setHSL(0.72+Math.random()*0.2-0.1,0.3+Math.random()*0.5,0.7+Math.random()*0.5);c.multiplyScalar(1);this.mesh.setColorAt(i,c);this.mesh.instanceColor.needsUpdate=true;
+    const c=new THREE.Color().setHSL(0.74+Math.random()*0.14-0.07,0.25+Math.random()*0.4,0.55+Math.random()*0.4);c.multiplyScalar(1);this.mesh.setColorAt(i,c);this.mesh.instanceColor.needsUpdate=true;
     this.mesh.count=this.n;return true;
   }
   remove(e){

@@ -38,7 +38,6 @@ export function chitinTex(key,{base=[0.2,0.2,0.25],glow=[0.2,1,0.7],cells=36,siz
 // ---------- fake wet-look environment (used only by creature materials) ----------
 let envTex=null;
 export function getEnv(ctx){
-  if(ctx.scene.environment)return ctx.scene.environment;
   if(envTex)return envTex;
   try{
     const s=new THREE.Scene();
@@ -47,7 +46,7 @@ export function getEnv(ctx){
       fragmentShader:'varying vec3 vP;void main(){float h=vP.y;vec3 top=vec3(.10,.28,.34),hor=vec3(.55,.22,.5),bot=vec3(.03,.06,.05);vec3 c=h>0.?mix(hor,top,pow(h,.6)):mix(hor*.5,bot,pow(-h,.5));gl_FragColor=vec4(c,1.);}'}));
     s.add(sky);
     const spot=(c,x,y,z,r)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,8),new THREE.MeshBasicMaterial({color:c}));m.position.set(x,y,z);s.add(m)};
-    spot(new THREE.Color(5,4,3),-20,30,10,6);spot(new THREE.Color(0.6,3,3.2),25,12,-20,5);spot(new THREE.Color(3,0.8,2.6),-25,6,-25,5);spot(new THREE.Color(1.5,2.5,1),0,4,30,4);
+    spot(new THREE.Color(2.4,2.4,2.8),-20,30,10,6);spot(new THREE.Color(0.6,3,3.2),25,12,-20,5);spot(new THREE.Color(3,0.8,2.6),-25,6,-25,5);spot(new THREE.Color(1.5,2.5,1),0,4,30,4);
     const pm=new THREE.PMREMGenerator(ctx.renderer);envTex=pm.fromScene(s,0.03).texture;pm.dispose();
   }catch(e){envTex=null}
   return envTex;

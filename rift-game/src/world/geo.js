@@ -58,10 +58,10 @@ export function addTube(gb,pts,radii,sides,colFn,uvS=1,glowFn=null){
 }
 function curve(R,n,h,lean,wob,ox=0,oz=0,ang=0){const pts=[];const la=ang||R()*6.28;for(let k=0;k<=n;k++){const t=k/n;
   pts.push(V(ox+Math.cos(la)*lean*t*t+Math.sin(t*5+R()*.3)*wob*t,t*h,oz+Math.sin(la)*lean*t*t+Math.cos(t*4.3)*wob*t))}return pts}
-function roots(gb,R,r,n,col){for(let k=0;k<n;k++){const a=k/n*6.28+R()*.5,len=.7+R()*.6;
+function roots(gb,R,r,n,col){for(let k=0;k<n;k++){const a=k/n*6.28+R()*.5,len=.5+R()*.4;
   const m=new THREE.Matrix4().compose(V(Math.cos(a)*r*.6,len*.15,Math.sin(a)*r*.6),new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.sin(a)*.9,0,-Math.cos(a)*.9)),V(1,1,1));
   const g=new THREE.CylinderGeometry(.04,r*.7,len,5,1,true);g.translate(0,len*.5-.2,0);
-  gb.addGeo(g,m,(p,nn,uv)=>({c:col,g:0}))}}
+  gb.addGeo(g,m,(p,nn,uv)=>({c:[col[0]*1.4+.1,col[1]*1.4+.08,col[2]*1.4+.1],g:0}))}}
 
 // ===== TREES =====
 const TREE_PAL=[
@@ -89,8 +89,8 @@ export function buildTree(variant,seed){
     for(let b=0;b<nb;b++){const a=b/nb*6.283+R()*.5,L=1.7+R()*1.2,up=1.3+R()*1.0;
       const bp=[];for(let k=0;k<=5;k++){const t=k/5;bp.push(V(top.x+Math.cos(a)*L*t,top.y+up*Math.sin(t*1.5)*.9+t*.5,top.z+Math.sin(a)*L*t))}
       addTube(trunk,bp,bp.map((_,k)=>lerp(.24,.07,k/5)),6,t=>mixc(barkD,bark,.7),1);
-      const e=bp[5];const nf=8;
-      for(let k=0;k<nf;k++)addFrond(can,e,k/nf*6.283+R()*.4,lerp(.5,-.25,(k%2)),1.8+R()*.8,1+R()*.3,1.4+R()*.8,P.b,P.t,.1,P.tg,1,6);
+      const e=bp[5];const nf=10;
+      for(let k=0;k<nf;k++)addFrond(can,e,k/nf*6.283+R()*.4,lerp(.7,-.35,(k%2)),2.1+R()*.9,1+R()*.3,1.7+R()*.8,P.b,P.t,.1,P.tg,1,7);
       const g=new THREE.SphereGeometry(.2,7,6);can.addGeo(g,new THREE.Matrix4().makeTranslation(e.x,e.y+.25,e.z),()=>({c:P.pod,g:2.4,s:.2}))}
   }else{
     const H=6+R()*3,pts=curve(R,10,H,.5,.12);
@@ -107,7 +107,7 @@ export function buildTree(variant,seed){
 export function buildFern(seed){
   const R=rng(seed*7+1),gb=new GB();const n=9;
   for(let k=0;k<n;k++){const yaw=k/n*6.283+R()*.5,pit=lerp(1.0,.15,R()),len=.8+R()*.7;
-    addFrond(gb,V(0,.02,0),yaw,pit,len,.38+R()*.12,1.4+R()*.8,[.02,.1,.07],[.14,.62,.45],.05,.5,1,6)}
+    addFrond(gb,V(0,.02,0),yaw,pit,len,.38+R()*.12,1.4+R()*.8,[.02,.1,.07],[.14,.62,.45],.05,.5,1,4)}
   return gb.build()}
 export function buildBulbPlant(seed){
   const R=rng(seed*13+9),gb=new GB();const n=3;
@@ -122,9 +122,9 @@ export function buildBulbPlant(seed){
     for(let j=0;j<4;j++)addFrond(gb,V(pts[2].x,pts[2].y,pts[2].z),R()*6.28,.5,.35,.14,1,[.03,.12,.1],[.1,.5,.4],0,.3,.8,3)}
   return gb.build()}
 export function buildGrassTuft(seed){
-  const R=rng(seed*29+3),gb=new GB();const n=8;
+  const R=rng(seed*29+3),gb=new GB();const n=6;
   for(let b=0;b<n;b++){const a=R()*6.283,off=R()*.22,bx=Math.cos(a)*off,bz=Math.sin(a)*off,H=.35+R()*.5,w=.045+R()*.03,yaw=R()*6.283,lean=.15+R()*.45;
-    const cx=Math.cos(yaw),cz=Math.sin(yaw);const ids=[];const rows=3;
+    const cx=Math.cos(yaw),cz=Math.sin(yaw);const ids=[];const rows=2;
     const c0=[.012,.05,.05],c1=[.05+R()*.1,.38+R()*.2,.32+R()*.15];
     for(let k=0;k<=rows;k++){const t=k/rows,hx=bx+cx*lean*t*t*H,hz=bz+cz*lean*t*t*H,hy=t*H*(1-.15*t),ww=w*(1-t*t*.95);
       const col=mixc(c0,c1,Math.pow(t,.8)),gl=t*t*.28,s=t*t;
@@ -133,22 +133,27 @@ export function buildGrassTuft(seed){
   return gb.build()}
 
 // ===== MUSHROOMS =====
-const MUSH_PAL=[{cap:[.02,.16,.55],rim:[.1,.7,.95],spot:[.5,1,1],stem:[.3,.28,.42]},{cap:[.42,.03,.32],rim:[.9,.2,.6],spot:[1,.7,1],stem:[.36,.26,.34]},{cap:[.55,.16,.02],rim:[1,.55,.1],spot:[1,.9,.4],stem:[.42,.32,.26]}];
+const MUSH_PAL=[{cap:[.005,.05,.24],rim:[.03,.3,.55],spot:[.5,1,1],stem:[.2,.18,.3]},{cap:[.18,.008,.13],rim:[.45,.07,.3],spot:[1,.7,1],stem:[.24,.17,.24]},{cap:[.22,.05,.005],rim:[.55,.26,.04],spot:[1,.9,.4],stem:[.28,.22,.17]}];
 export function buildMushroom(variant,seed){
   const R=rng(seed*53+variant*7+2),gb=new GB(),P=MUSH_PAL[variant];
-  const sh=1.5+R()*.5,sr=.16+R()*.04,capR=1.1+R()*.35,capH=capR*(.7+R()*.3);
+  const sh=1.5+R()*.5,sr=.16+R()*.04,capR=1.3+R()*.45,capH=capR*(.48+R()*.2);
   const sp=[];for(let k=0;k<=8;k++){const t=k/8;sp.push(new THREE.Vector2(sr*(1+.9*Math.pow(1-t,3))*(1+.15*Math.sin(t*6)),t*sh))}
   gb.addGeo(new THREE.LatheGeometry(sp,10),new THREE.Matrix4(),(p,n)=>({c:mixc([.35,.3,.45],P.stem,p.y/sh),g:.15,s:0}));
-  const cp=[new THREE.Vector2(sr*.9,sh-.05)];
-  cp.push(new THREE.Vector2(capR*.35,sh-.03),new THREE.Vector2(capR*.75,sh+capH*.02),new THREE.Vector2(capR,sh+capH*.16));
-  for(let k=1;k<=8;k++){const a=k/8*Math.PI*.5;cp.push(new THREE.Vector2(capR*Math.cos(a)*.98,sh+capH*.16+capH*.84*Math.sin(a)))}
-  cp[cp.length-1].x=.001;
-  gb.addGeo(new THREE.LatheGeometry(cp,16),new THREE.Matrix4(),(p,n)=>{
-    const under=n.y<-.4,rim=Math.hypot(p.x,p.z)/capR;const top=clamp((p.y-sh)/capH,0,1);
-    if(under)return{c:mixc([.1,.04,.12],P.rim,Math.min(1,rim*rim)),g:1.1*rim,s:0};
-    const mt=.7+.6*noise3(p.x*4,p.y*4,p.z*4,5);const cc=mixc(P.rim,P.cap,Math.min(1,top*2.2));return{c:[cc[0]*mt,cc[1]*mt,cc[2]*mt],g:.06+.25*(1-top),s:0}});
+  const rimY=sh-.1*capH;
+  const cp=[new THREE.Vector2(sr*.9,sh-.02),new THREE.Vector2(capR*.3,sh-.04*capH),new THREE.Vector2(capR*.62,sh-.09*capH),new THREE.Vector2(capR*.88,sh-.15*capH),new THREE.Vector2(capR*.99,rimY-.03*capH),new THREE.Vector2(capR,rimY+.05*capH)];
+  for(let k=1;k<=9;k++){const a=k/9*Math.PI*.5;cp.push(new THREE.Vector2(capR*Math.cos(a)*.98+.001,rimY+.05*capH+capH*1.05*Math.pow(Math.sin(a),.85)))}
+  const capGeo=new THREE.LatheGeometry(cp,28);const cpos=capGeo.attributes.position,vv=new THREE.Vector3();
+  for(let k=0;k<cpos.count;k++){vv.fromBufferAttribute(cpos,k);const rr=Math.hypot(vv.x,vv.z),an=Math.atan2(vv.z,vv.x),rim=Math.min(1,rr/capR);
+    const wob=1+.06*Math.sin(an*9+seed)*rim*rim+.03*Math.sin(an*17)*rim*rim*rim;cpos.setXYZ(k,vv.x*wob,vv.y+(Math.sin(an*9+seed)*.05*capH*rim*rim*rim),vv.z*wob)}
+  capGeo.computeVertexNormals();
+  gb.addGeo(capGeo,new THREE.Matrix4(),(p,n)=>{
+    const under=n.y<-.35,rr=Math.hypot(p.x,p.z)/capR,an=Math.atan2(p.z,p.x);const top=clamp((p.y-rimY)/capH,0,1);
+    const streak=1+.22*Math.sin(an*22+noise3(p.x*3,p.y*3,p.z*3,6)*4);
+    if(under)return{c:mixc([.08,.03,.1],P.rim,Math.min(1,rr*rr*1.2)*(.6+.4*Math.sin(an*40))),g:1.0*rr,s:0};
+    const mt=(.72+.5*noise3(p.x*4,p.y*4,p.z*4,5))*streak;const cc=mixc(P.rim,P.cap,Math.min(1,top*1.8));
+    return{c:[cc[0]*mt,cc[1]*mt,cc[2]*mt],g:.05+.3*(1-top)*(1-top),s:0}});
   const ns=7+(R()*5|0);
-  for(let k=0;k<ns;k++){const a=R()*6.28,d=R()*.8,rr=capR*d,hh=sh+capH*(.16+.84*Math.sqrt(Math.max(0,1-d*d)))*1.0;
+  for(let k=0;k<ns;k++){const a=R()*6.28,d=R()*.8,rr=capR*d,hh=rimY+.05*capH+capH*1.05*Math.pow(Math.sqrt(Math.max(0,1-d*d)),.85);
     const g=new THREE.SphereGeometry(.07+R()*.1,6,5);g.scale(1,.45,1);
     const m=new THREE.Matrix4().makeTranslation(Math.cos(a)*rr,hh,Math.sin(a)*rr);
     gb.addGeo(g,m,()=>({c:P.spot,g:2.6,s:0}))}
@@ -181,9 +186,9 @@ export function buildRock(seed,flat=1){
 export function buildCrystalCluster(seed,variant=0){
   const R=rng(seed*61+variant*5+1),gb=new GB();
   const pal=[[[.0,.05,.16],[.02,.55,.95],[.25,.85,1]],[[.06,.0,.16],[.45,.12,.9],[.75,.4,1]],[[.0,.1,.06],[.05,.8,.35],[.4,1,.6]]][variant];
-  const n=5+(R()*5|0);
+  const n=7+(R()*6|0);
   for(let k=0;k<n;k++){
-    const main=k===0;const L=main?2.0+R()*1.4:.6+R()*1.3,r=main?.3+R()*.1:.11+R()*.1;
+    const main=k<2;const L=main?2.0+R()*1.4:.6+R()*1.3,r=main?.3+R()*.1:.11+R()*.1;
     const a=R()*6.283,tilt=main?(R()-.5)*.25:.25+R()*.55;
     const dir=V(Math.sin(tilt)*Math.cos(a),Math.cos(tilt),Math.sin(tilt)*Math.sin(a)).normalize();
     const org=main?V(0,-.05,0):V(Math.cos(a)*.18*(1+R()),-.05,Math.sin(a)*.18*(1+R()));
@@ -193,7 +198,7 @@ export function buildCrystalCluster(seed,variant=0){
     for(let s=0;s<sides;s++){const th=s/sides*6.283+rot;ring0.push([Math.cos(th)*r,0,Math.sin(th)*r]);ring1.push([Math.cos(th)*r*.82,L*.72,Math.sin(th)*r*.82])}
     const apex=[0,L,0];
     const col=(t)=>mixc(pal[0],pal[1],Math.pow(t,.7));
-    const face=(pts,cs,gl)=>{const p=pts.map(v=>apply(...v));const g=new THREE.Vector3().crossVectors(p[1].clone().sub(p[0]),p[2].clone().sub(p[0])).normalize();
+    const face=(pts,cs0,gl)=>{const fm=.72+R()*.5;const cs=cs0.map(c=>[c[0]*fm,c[1]*fm,c[2]*fm]);const p=pts.map(v=>apply(...v));const g=new THREE.Vector3().crossVectors(p[1].clone().sub(p[0]),p[2].clone().sub(p[0])).normalize();
       const cen=p[0].clone().add(p[1]).add(p[2]).multiplyScalar(1/3).sub(org);const flip=g.dot(cen)<0;const n=flip?g.clone().negate():g;
       const ids=p.map((pp,i)=>gb.vert(pp.x,pp.y,pp.z,n.x,n.y,n.z,i%2,i>>1,cs[i][0],cs[i][1],cs[i][2],gl[i],0));
       if(flip)gb.tri(ids[0],ids[2],ids[1]);else gb.tri(ids[0],ids[1],ids[2])};

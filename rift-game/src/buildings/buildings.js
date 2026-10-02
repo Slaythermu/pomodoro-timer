@@ -13,8 +13,8 @@ const angDiff=(a,b)=>{let d=(b-a)%TAU;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;r
 export function init(ctx){
   const {scene,renderer}=ctx;renderer.localClippingEnabled=true;
   const vfx=new VFX(ctx);ctx.__vfx=vfx;
-  const M=mats();
-  const list=[],nodes=[];let nextId=1,dirty=true,tracers=[],shells=[],wrecks=[];
+  const M=mats(renderer);
+  const list=[];let nextId=1,dirty=true,tracers=[],shells=[],wrecks=[];
   const st={mode:null,menu:false,uiHover:false,lmb:false,click:false,cancel:false,msg:undefined,lastCell:'',edges:[],supply:6,demand:0,sat:1};
   const H=(x,z)=>ctx.terrain?.heightAt?.(x,z)||0;
   const spec=t=>SPECS[t];
@@ -23,36 +23,13 @@ export function init(ctx){
   const cost=(t)=>spec(t).cost;
   const afford=t=>{for(const k in cost(t))if((ctx.state.res[k]||0)<cost(t)[k])return false;return true};
 
-  // ---------- resource nodes ----------
-  const nm={
-    rockC:new THREE.MeshStandardMaterial({color:0x2a2420,roughness:.85,metalness:.2}),
-    vein:new THREE.MeshStandardMaterial({color:0x221000,emissive:0xff7a1a,emissiveIntensity:2.6,roughness:.4}),
-    steel:new THREE.MeshStandardMaterial({color:0x7c8fa6,roughness:.35,metalness:.95}),
-    steelDk:new THREE.MeshStandardMaterial({color:0x2f3a48,roughness:.6,metalness:.8}),
-    cry:new THREE.MeshStandardMaterial({color:0x0a3040,emissive:0x22d6ff,emissiveIntensity:2.4,roughness:.15,metalness:.1,transparent:true,opacity:.92}),
-  };
-  const nodeInfo={carbon:{ring:0xff8a2a,amt:6,col:'#ff9d3a'},steel:{ring:0x9fc4ff,amt:4,col:'#a8cdf5'},crystal:{ring:0x35e8ff,amt:3,col:'#4be8ff'}};
-  function makeNode(type,x,z,r){
-    const g=new THREE.Group();const y=H(x,z);g.position.set(x,y,z);g.rotation.y=r()*6;
-    const add=(geo,mat,px,py,pz,rx,ry,rz,s=1,sy=s)=>{const m=new THREE.Mesh(geo,mat);m.position.set(px,py,pz);m.rotation.set(rx,ry,rz);m.scale.set(s,sy,s);m.castShadow=true;m.receiveShadow=true;g.add(m)};
-    if(type==='crystal'){for(let i=0;i<9;i++){const a=r()*TAU,d=i?0.3+r()*1.0:0,h=.9+r()*(i?1.6:2.2),w=.2+r()*.28;add(new THREE.ConeGeometry(w,h,6),nm.cry,Math.cos(a)*d,h/2-.05,Math.sin(a)*d,(r()-.5)*.5,r()*6,(r()-.5)*.5)}
-      add(new THREE.IcosahedronGeometry(.9,0),nm.rockC,0,0,0,r(),r(),r(),1,.4)}
-    else if(type==='steel'){for(let i=0;i<7;i++){const a=r()*TAU,d=r()*1.1,s=.35+r()*.5;add(new THREE.IcosahedronGeometry(s,0),i%3?nm.steel:nm.steelDk,Math.cos(a)*d,s*.5,Math.sin(a)*d,r()*3,r()*3,r()*3,1,.7)}
-      add(new THREE.BoxGeometry(.2,.05,1.1),nm.vein,0,.85,0,0,r(),0)}
-    else{for(let i=0;i<6;i++){const a=r()*TAU,d=r()*1.1,s=.4+r()*.5;add(new THREE.DodecahedronGeometry(s,0),nm.rockC,Math.cos(a)*d,s*.4,Math.sin(a)*d,r()*3,r()*3,r()*3,1,.65)}
-      for(let i=0;i<7;i++){const a=r()*TAU,d=.2+r()*.9;add(new THREE.OctahedronGeometry(.13+r()*.15),nm.vein,Math.cos(a)*d,.5+r()*.45,Math.sin(a)*d,r()*3,r()*3,r()*3,1,1.8)}}
-    scene.add(g);
-    const n={type,pos:new THREE.Vector3(x,y,z),radius:1.7,mesh:g,taken:null};nodes.push(n);
-    vfx.ring(x,y,z,3.6,3.6,nodeInfo[type].ring,1e9,.35);const rm=vfx.rings[(vfx.ri+vfx.rings.length-1)%vfx.rings.length];rm.userData.fixed=true;
-    return n}
-  (function genNodes(){const r=rng(ctx.seed*7+13);const types=['carbon','steel','crystal','carbon','crystal','steel','carbon','carbon','steel','crystal','carbon','crystal'];
-    // a few guaranteed close to the core
-    const ang0=r()*TAU;let tries=0;
-    for(let i=0;i<types.length&&tries<400;i++){let ok=false,x,z;while(!ok&&tries++<400){const a=i<3?ang0+i*2.1+(r()-.5)*.5:r()*TAU,d=i<3?11+r()*4:14+r()*26;x=Math.round(Math.cos(a)*d/CELL)*CELL;z=Math.round(Math.sin(a)*d/CELL)*CELL;
-      ok=!(ctx.terrain?.blocked?.(x,z,3))&&nodes.every(n=>Math.hypot(n.pos.x-x,n.pos.z-z)>7)}
-      if(ok)makeNode(types[i],x,z,r)}})();
-  // rings are persistent: stop vfx from expiring them
-  const origUpd=vfx.update.bind(vfx);vfx.update=function(dt){origUpd(dt);for(const m of vfx.rings)if(m.userData.fixed){m.visible=true;m.userData.age=0;m.material.opacity=.3+.12*Math.sin(ctx.time*2+m.position.x);m.scale.setScalar(3.4+.15*Math.sin(ctx.time*2+m.position.z))}};
+  // ---------- resource nodes (owned by terrain: ctx.terrain.resourceNodes) ----------
+  const nodeInfo={carbon:{amt:5,col:'#ff9d3a',beam:0xff9a30},steel:{amt:4,col:'#a8cdf5',beam:0x9fc4ff},crystal:{amt:3,col:'#4be8ff',beam:0x35e8ff}};
+  const nodes=ctx.terrain?.resourceNodes||[];
+  function nodeNear(x,z,extra=3.2){let best=null,bd=1e9;for(const n of nodes){if(!n.alive||!n.res||n.amount<=0)continue;const d=Math.hypot(n.pos.x-x,n.pos.z-z);if(d<n.radius+extra&&d<bd){bd=d;best=n}}return best}
+  // harvester snap: sit beside the nearest node, toward the cursor
+  function harvSnap(ax,az){const n=nodeNear(ax,az,4.2);if(!n)return null;let dx=ax-n.pos.x,dz=az-n.pos.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const d=n.radius+2.7;
+    return [Math.round((n.pos.x+dx*d)/CELL)*CELL,Math.round((n.pos.z+dz*d)/CELL)*CELL,n]}
 
   // ---------- ghost ----------
   const ghostFill=new THREE.MeshBasicMaterial({color:0x44ff88,transparent:true,opacity:.34,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
@@ -78,15 +55,15 @@ export function init(ctx){
     const h=halfOf(t);
     if(ctx.state.over)return 'Base lost';
     if(!afford(t))return 'Insufficient resources';
-    if(ctx.terrain?.blocked?.(x,z,h*.9))return 'Terrain blocked';
+    if(t==='harvester'&&nodeNear(x,z,3.6)){/* beside a resource node: allowed even though the node itself is solid */}
+    else if(ctx.terrain?.blocked?.(x,z,h*.9))return 'Terrain blocked';
     if(aabbHit(x,z,h))return 'Area occupied';
-    if(t!=='harvester')for(const n of nodes)if(Math.abs(n.pos.x-x)<h+1&&Math.abs(n.pos.z-z)<h+1)return 'Resource node in the way';
-    if(t==='harvester'&&nodes.some(n=>n.taken&&n.taken.alive&&n.taken!==null&&Math.hypot(n.pos.x-x,n.pos.z-z)<2.5))return 'Node already tapped';
+    if(t==='harvester'){const n=nodeNear(x,z,3.6);if(!n)return 'Needs a resource node nearby';if(list.some(o=>o.alive&&o.node===n))return 'Node already tapped'}
     return null}
 
   // ---------- construction visuals ----------
   const scafMat=new THREE.MeshStandardMaterial({color:0xd89a3a,metalness:.7,roughness:.45,emissive:0x442200,emissiveIntensity:.8});
-  const scafCache=new Map();
+  const scafCache=new Map(),origMat=new WeakMap();
   function scaffold(half,h){const k=half+'_'+h;let g=scafCache.get(k);if(g)return g.clone();g=new THREE.Group();const geos=[];const bx=(w,hh,d,x,y,z,rx=0,ry=0,rz=0)=>{const q=new THREE.BoxGeometry(w,hh,d);q.rotateX(rx);q.rotateY(ry);q.rotateZ(rz);q.translate(x,y,z);geos.push(q)};
     const e=half*.96,nL=Math.max(2,Math.round(h/1.2));
     for(const sx of [-1,1])for(const sz of [-1,1])bx(.1,h,.1,sx*e,h/2,sz*e);
@@ -95,7 +72,7 @@ export function init(ctx){
     for(const q of geos){const m=new THREE.Mesh(q,scafMat);g.add(m)}scafCache.set(k,g);return g.clone()}
 
   function startConstruct(b){
-    b.group.traverse(o=>{if(o.isMesh){o.userData.orig=o.material;const c=o.material.clone();c.clippingPlanes=[b.clipBelow];c.clipShadows=true;o.material=c}});
+    b.group.traverse(o=>{if(o.isMesh){origMat.set(o,o.material);const c=o.material.clone();c.clippingPlanes=[b.clipBelow];c.clipShadows=true;o.material=c}});
     b.holoMat=new THREE.MeshBasicMaterial({color:0x35e8ff,transparent:true,opacity:.28,wireframe:false,depthWrite:false,blending:THREE.AdditiveBlending,clippingPlanes:[b.clipAbove],toneMapped:false,side:THREE.DoubleSide});
     b.holoWire=new THREE.MeshBasicMaterial({color:0x88f4ff,transparent:true,opacity:.45,wireframe:true,depthWrite:false,blending:THREE.AdditiveBlending,clippingPlanes:[b.clipAbove],toneMapped:false});
     const mk=m=>{const c=b.model.root.clone(true);c.traverse(o=>{if(o.isMesh){o.material=m;o.castShadow=false}});return c};
@@ -104,7 +81,7 @@ export function init(ctx){
     b.scan=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:sqTex,color:0x66f6ff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,side:THREE.DoubleSide}));
     b.scan.rotation.x=-Math.PI/2;b.scan.scale.setScalar(b.half*2*1.02);b.group.add(b.scan)}
   function endConstruct(b){
-    b.group.traverse(o=>{if(o.isMesh&&o.userData.orig){o.material.dispose();o.material=o.userData.orig;delete o.userData.orig}});
+    b.group.traverse(o=>{if(o.isMesh&&origMat.has(o)){o.material.dispose();o.material=origMat.get(o);origMat.delete(o)}});
     if(b.holo){b.group.remove(b.holo);b.holoMat.dispose();b.holoWire.dispose()}b.holo=null;
     if(b.scaf){b.group.remove(b.scaf);b.scaf=null}if(b.scan){b.group.remove(b.scan);b.scan.material.dispose();b.scan=null}
     b.built=true;b.prog=1;const p=b.pos;
@@ -123,7 +100,7 @@ export function init(ctx){
     const half=halfOf(type);
     const b={id:nextId++,type,pos:new THREE.Vector3(x,y,z),half,radius:type==='core'?3.7:half*.92,hp:s.hp,maxHp:s.hp,alive:true,built:false,prog:0,model,group,eff:1,yaw:0,t:Math.random()*5,timer:Math.random(),hurt:0,lastHit:-9,ctx,net:true,power:s.power||0,buildTime:opts.instant||type==='core'?0:(s.build||3),smokeT:0,name:s.name};
     b.clipBelow=new THREE.Plane(new THREE.Vector3(0,-1,0),y);b.clipAbove=new THREE.Plane(new THREE.Vector3(0,1,0),-y);
-    if(type==='harvester'){const n=nodeAt(x,z,2.6);if(n){b.node=n;n.taken=b}}
+    if(type==='harvester')b.node=nodeNear(x,z,3.6);
     list.push(b);
     if(b.buildTime>0){startConstruct(b);if(type==='wall')wallRefresh(b)}else endConstructQuiet(b);
     if(type==='wall')for(const o of wallNeighbors(b))wallRefresh(o);
@@ -151,7 +128,6 @@ export function init(ctx){
     for(let i=0;i<14;i++)vfx.smoke(p.x+(Math.random()-.5)*b.half,p.y+1,p.z+(Math.random()-.5)*b.half,2.2,0x2a2826);
     vfx.scorchAt(p.x,p.y,p.z,b.half*1.5);wrecks.push({p:p.clone(),t:5,h:b.half});
     ctx.postfx?.shake?.(b.type==='core'?1.5:.5);ctx.audio?.play?.('explosion',p);ctx.lighting?.addLight?.(p.clone().setY(p.y+2),0xff9a40,8,18);
-    if(b.node){b.node.taken=null}
     scene.remove(b.group);b.group.traverse(o=>{if(o.isMesh){o.geometry.dispose?.()}});
     ctx.ev.emit('building-destroyed',{building:b,pos:p,type:b.type});
     if(b.type==='wall')for(const o of wallNeighbors(b))wallRefresh(o);
@@ -230,11 +206,19 @@ export function init(ctx){
     const pl=ctx.player?.pos;if(pl&&Math.hypot(pl.x-b.pos.x,pl.z-b.pos.z)<R&&ctx.state.hp<ctx.state.maxHp){ctx.state.hp=Math.min(ctx.state.maxHp,ctx.state.hp+4*b.eff);healed=true;ctx.fx?.burst?.('heal',pl.clone())}
     b.b=0;vfx.ring(b.pos.x,b.pos.y,b.pos.z,1.5,R*2,0x44ff88,1.1,healed?1:.5);if(healed)ctx.audio?.play?.('pickup',b.pos)}
   function stepHarvester(b,dt){
-    if(b.node&&!b.node.taken)b.node.taken=b;
+    if(b.node&&(!b.node.alive||b.node.amount<=0))b.node=nodeNear(b.pos.x,b.pos.z,3.6);
+    const n=b.node;b.active=!!n;
+    if(n){ // mining beam from drill to node
+      const a=_v.set(b.pos.x,b.pos.y+2.3,b.pos.z),c=_w.set(n.pos.x,n.pos.y+(n.scale||1)*.8,n.pos.z),col=nodeInfo[n.res]?.beam||0xffffff;
+      vfx.lightning(a,c,col,.035,.12,6);
+      if(Math.random()<dt*14)vfx.fireP.emit(c.x,c.y,c.z,(Math.random()-.5)*2,1+Math.random()*2,(Math.random()-.5)*2,.5,.4,.1,col,.9);
+      const ph=(ctx.time*1.6)%1;vfx.fireP.emit(a.x+(c.x-a.x)*ph,a.y+(c.y-a.y)*ph,a.z+(c.z-a.z)*ph,0,0,0,.12,.45,.2,col,1)}
     b.timer-=dt*Math.max(.15,b.eff);if(b.timer>0)return;b.timer=3.5;
-    const t=b.node?b.node.type:'carbon',amt=b.node?nodeInfo[t].amt:1;
+    let t='carbon',amt=1;
+    if(n){t=n.res;const want=nodeInfo[t]?.amt||3;amt=ctx.terrain?.harvest?ctx.terrain.harvest(n,want):want}
+    if(amt<=0)return;
     ctx.state.res[t]=(ctx.state.res[t]||0)+amt;ctx.ev.emit('resource',{type:t,amount:amt});
-    vfx.text('+'+amt,b.pos.x,b.pos.y+b.model.H+.4,b.pos.z,nodeInfo[t].col);vfx.spark(b.pos.x,b.pos.y+.6,b.pos.z,5,3,t==='crystal'?0x66f0ff:0xffa040)}
+    vfx.text('+'+Math.round(amt),b.pos.x,b.pos.y+b.model.H+.4,b.pos.z,nodeInfo[t]?.col||'#ffb030');vfx.spark(b.pos.x,b.pos.y+.6,b.pos.z,5,3,t==='crystal'?0x66f0ff:0xffa040)}
 
   // ---------- input ----------
   const typing=e=>/INPUT|TEXTAREA/.test(e.target?.tagName||'');
@@ -267,7 +251,7 @@ export function init(ctx){
     // ---- build mode / ghost ----
     if(st.mode&&!ctx.state.over){
       const aim=ctx.input.aim,[sx,sz]=snap(st.mode,aim.x,aim.z);let px=sx,pz=sz;
-      if(st.mode==='harvester'){const n=nodeAt(aim.x,aim.z,3.2);if(n){px=Math.round(n.pos.x/CELL)*CELL;pz=Math.round(n.pos.z/CELL)*CELL}}
+      if(st.mode==='harvester'){const hs=harvSnap(aim.x,aim.z);if(hs){px=hs[0];pz=hs[1]}}
       const why=check(st.mode,px,pz);const ok=!why;const gh=getGhost(st.mode);
       if(ghost&&ghost!==gh)ghost.g.visible=false;ghost=gh;gh.g.visible=true;const y=H(px,pz);gh.g.position.set(px,y-.12,pz);
       gh.m.root.position.y=0;

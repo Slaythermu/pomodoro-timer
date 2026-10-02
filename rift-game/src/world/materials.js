@@ -4,7 +4,7 @@ export const U={uTime:{value:0},uCam:{value:new THREE.Vector3(0,26,19)},uTgt:{va
 
 const CUT=`
  { vec3 cd=uTgt-uCam;float cL=length(cd);vec3 cdir=cd/cL;vec3 pc=vWPos-uCam;float ct=dot(pc,cdir);
-   if(ct>1.&&ct<cL-.5){float dist=length(pc-cdir*ct);float a=smoothstep(3.4,1.8,dist)*.96;
+   if(ct>1.&&ct<cL-.5){float dist=length(pc-cdir*ct);float a=smoothstep(5.2,2.6,dist)*.97;
      float dth=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));if(a>dth)discard;}}`;
 export function foliageMat(o={}){
   const m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:o.rough??.8,metalness:o.metal??0,map:o.map||null,normalMap:o.normalMap||null,
@@ -86,7 +86,7 @@ alb*=mix(.68,1.32,nzA.r);alb*=vec3(1.+(nzB.g-.5)*.4,1.,1.+(nzB.b-.5)*.4);
 alb*=.82+.36*nzD.g;
 alb*=(1.-gmap.a*.6);alb*=.78+.44*hmix;
 diffuseColor.rgb=alb;
-vec3 terrEm=vec3(.08,.85,1.)*veinG*(3.2+1.2*sin(uTime*1.4+nzB.r*30.+nzA.g*9.))+alb*gmap.rgb*2.6;
+vec3 terrEm=vec3(.08,.85,1.)*veinG*(5.5+2.*sin(uTime*1.4+nzB.r*30.+nzA.g*9.))+alb*gmap.rgb*2.6;
 float terrRough=clamp(rgh,.2,1.);
 vec3 terrWN=normalize(tWN+pert*1.15);
 `)
@@ -113,19 +113,20 @@ void main(){
   vec2 g1=texture2D(uNoise,p*.045+vec2(t*.012,t*.007)).xy-.5,g2=texture2D(uNoise,p*.11-vec2(t*.02,-t*.015)).zw-.5,g3=texture2D(uNoise,p*.31+vec2(t*.04,-t*.03)).xy-.5;
   float w=sin(p.x*1.3+t*1.1+g1.x*6.)*.5+sin(p.y*1.7-t*.9+g2.y*6.)*.5;
   vec3 N=normalize(vec3((g1.x+g2.x*1.6+g3.x*1.2)*1.7+w*.05,1.,(g1.y+g2.y*1.6+g3.y*1.2)*1.7+w*.05));
-  vec3 V=normalize(cameraPosition-vW);float fr=pow(1.-max(dot(N,V),0.),3.);
+  vec3 V=normalize(cameraPosition-vW);float fr=.06+.94*pow(1.-max(dot(N,V),0.),4.);
   float dp=clamp(vD,0.,3.);
-  vec3 shallow=vec3(.03,.34,.34),deep=vec3(.0,.04,.1);
-  vec3 col=mix(shallow,deep,smoothstep(.1,1.6,dp));
-  vec3 sky=vec3(.1,.34,.5);col=mix(col,sky,fr*.75);
-  vec3 L=normalize(uSun);vec3 H=normalize(L+V);float spec=pow(max(dot(N,H),0.),180.)*2.5+pow(max(dot(N,H),0.),30.)*.12;
+  vec3 shallow=vec3(.0,.2,.25),deep=vec3(.0,.045,.12);
+  vec3 col=mix(shallow,deep,smoothstep(.05,1.3,dp));
+  vec3 Rf=reflect(-V,N);vec3 sky=mix(vec3(.04,.14,.2),vec3(.12,.28,.45),smoothstep(.2,1.,Rf.y))+vec3(.1,.35,.4)*pow(1.-abs(Rf.y),3.);
+  col=mix(col,sky,fr*.5);col+=vec3(.0,.03,.05);
+  vec3 L=normalize(uSun);vec3 H=normalize(L+V);float spec=pow(max(dot(N,H),0.),260.)*3.+pow(max(dot(N,H),0.),40.)*.08;
   col+=spec*vec3(1.,.95,.85);
-  float foam=smoothstep(.22,.0,vD+ (g2.x+g1.y)*.25)*(.6+.4*sin(t*2.+p.x*2.+p.y*1.5+g3.x*8.));
-  col+=foam*vec3(.5,.9,.95)*.7;
-  float sp2=smoothstep(.62,.75,texture2D(uNoise,p*.5+vec2(-t*.03,t*.02)).z)*smoothstep(.2,1.,vD);
-  col+=vec3(.1,.9,1.)*sp2*(.6+.4*sin(t*3.+p.x*4.));
-  col+=vec3(.0,.18,.2)*smoothstep(.1,2.,dp)*.6;
-  float a=smoothstep(.0,.3,vD)*(.62+.33*smoothstep(.2,1.4,dp));a=max(a,foam*.5*step(.0,vD+.1));a*=smoothstep(-.05,.05,vD);
+  float caus=(sin(p.x*3.1+t*.9+g1.x*9.)+sin(p.y*3.7-t*1.1+g2.y*9.)+sin((p.x+p.y)*2.3+t*.7+g3.x*7.))*.1667+.5;caus=pow(clamp(caus,0.,1.),7.)*smoothstep(1.4,.1,dp);
+  col+=vec3(.1,.8,.8)*caus*.35;
+  float edge=vD+(g2.x+g1.y)*.22;float foam=smoothstep(.16,.0,edge)*smoothstep(-.1,.0,edge)*(.55+.45*sin(t*1.7+p.x*2.+p.y*1.5+g3.x*8.));
+  col+=foam*vec3(.5,.9,.9)*.5;
+  col+=vec3(.0,.22,.24)*smoothstep(.9,.1,dp)*.6;
+  float a=smoothstep(.0,.25,vD)*(.7+.25*smoothstep(.2,1.2,dp));a=max(a,foam*.5);a*=smoothstep(-.05,.05,vD);
   gl_FragColor=vec4(col,a);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>

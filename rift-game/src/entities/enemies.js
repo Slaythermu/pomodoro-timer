@@ -10,7 +10,7 @@ const T={
   skitter:{k:0,radius:0.42,hp:16,speed:7.4,dmg:5,range:0.9,windup:0.26,cd:0.85,knock:1.6,res:{carbon:2},score:10},
   brute:{k:1,radius:1.7,hp:340,speed:4.0,dmg:26,range:2.2,windup:0.6,cd:1.2,knock:0.12,res:{carbon:14,steel:5},score:120},
   spitter:{k:2,radius:0.8,hp:80,speed:3.7,dmg:14,range:19,windup:0.95,cd:2.6,knock:0.6,res:{carbon:6,crystal:2},score:60},
-  boss:{k:3,radius:4.6,hp:5200,speed:2.9,dmg:40,range:6,windup:1.4,cd:5,knock:0.02,res:{carbon:120,steel:60,crystal:40},score:2500},
+  boss:{k:3,radius:4.6,hp:3800,speed:2.9,dmg:40,range:6,windup:1.4,cd:5,knock:0.02,res:{carbon:120,steel:60,crystal:40},score:2500},
 };
 const MAX_ALIVE=520;
 
@@ -57,9 +57,9 @@ export function init(ctx){
   }
   function spawnWave(n){
     n=n||wave()+1;ctx.state.wave=Math.max(ctx.state.wave||0,n);api.wave=n;
-    const budget=10+n*6.5+Math.pow(n,1.5)*1.3;
+    const budget=14+n*7+Math.pow(n,1.5)*1.6;
     let brutes=n>=2?Math.floor((n-1)*0.65+0.4):0,spitters=n>=3?Math.floor((n-2)*0.9+0.5):0,boss=(n%5===0)?1+Math.floor(n/15):0;
-    let sk=Math.max(6,Math.floor(budget-brutes*8-spitters*4-boss*40));
+    let sk=Math.max(8,Math.floor(budget*0.9-brutes*6-spitters*3));
     const room=MAX_ALIVE-list.length-queue.length;sk=Math.min(sk,Math.max(0,room));
     const bc=base(),R=Math.min(64,(ctx.terrain?.size||200)*0.44),gates=2+(n>6?1:0)+(n>14?1:0),a0=Math.random()*6.283;
     const gateAng=[];for(let i=0;i<gates;i++)gateAng.push(a0+i*(6.283/gates)+(Math.random()-0.5)*0.8);
@@ -277,7 +277,7 @@ export function init(ctx){
     }else if(e.state===2){
       move(e,dt,0,0,3);face(e,dx,dz,dt,2);
       const px=e.pos.x+Math.sin(e.yaw)*2,pz=e.pos.z+Math.cos(e.yaw)*2,k=e.stateT/e.windup;
-      if(!e.tg)e.tg=getTg('circle',0xff4422);e.tg.circle(px,pz,26*0.55,k);
+      if(!e.tg)e.tg=getTg('circle',0xff4422);e.tg.circle(px,pz,21,k);
       if(e.stateT>=e.windup){freeTg(e);setState(e,3)}
       if(frame%6===0)ctx.fx?.burst?.('spark',pos3(e.pos.x+(Math.random()-0.5)*8,e.pos.y+0.3,e.pos.z+(Math.random()-0.5)*8),{count:3});
     }else if(e.state===3){
@@ -286,7 +286,7 @@ export function init(ctx){
         const cx=e.pos.x+Math.sin(e.yaw)*2,cz=e.pos.z+Math.cos(e.yaw)*2,cp=pos3(cx,ground(cx,cz),cz);
         shake(1.0);ctx.audio?.play?.('explosion',e.pos);ctx.fx?.burst?.('explosion',cp,{count:20,scale:2});ctx.lighting?.addLight?.(cp,0xff8844,6,28);
         deb.gibs(cp,20,{speed:14,up:9,size:0.35,col:[0.2,0.15,0.15],glowFrac:0.1});deb.globs(cp,30,{speed:14,up:8,size:0.14,color:[3,1.2,0.4]});
-        deb.shockwave(cx,cz,{maxR:26,speed:25,band:2,dmg:e.dmg,color:0xff6a2a,onHit:w=>{
+        deb.shockwave(cx,cz,{maxR:21,speed:24,band:2,dmg:e.dmg,color:0xff6a2a,onHit:w=>{
           const pp=playerT.pos,band=w.band+1;
           if(!w.hit.has('p')&&Math.abs(Math.hypot(pp.x-w.x,pp.z-w.z)-w.r)<band&&(ctx.player?.pos?.y||0)<2.5){w.hit.add('p');playerHit(w.dmg);shake(0.5)}
           const bl=ctx.buildings?.list;if(bl)for(const b of bl){if(!b.pos||!alive(b)||w.hit.has(b))continue;if(Math.abs(Math.hypot(b.pos.x-w.x,b.pos.z-w.z)-w.r)<band+(b.radius||2)){w.hit.add(b);hurt(b,w.dmg*1.5)}}}});
@@ -348,7 +348,8 @@ export function init(ctx){
   }
   // expose
   api.damage=damage;api.spawnWave=spawnWave;api.spawn=spawn;api.update=update;
-  api.clear=()=>{for(const e of list.slice())kill(e)};
+  api.clear=()=>{for(const e of list.slice()){e.alive=false;removeFromList(e);freeTg(e);if(e.type==='skitter')swarm.remove(e);else{if(e.rig){freeRig(e.type,e.rig);e.rig=null}}pool.push(e)}
+    for(const e of dying.splice(0)){if(e.rig){freeRig(e.type,e.rig);e.rig=null}pool.push(e)}api.boss=null;queue.length=0};
   api._update=update;
   // prewarm rigs so the first brute/spitter/boss spawn does not hitch
   if(q.get('prewarm')!=='0')for(const t of ['brute','spitter','boss']){const r=getRig(t);freeRig(t,r)}

@@ -14,5 +14,5 @@ for(let k=0;k<poss.length;k++){const t1=Date.now();
  if(poss[k]){const [x,z]=poss[k].split(',').map(Number);await p.evaluate(`(()=>{const g=window.__game;const y=g.terrain.heightAt(${x},${z});g.player.pos.set(${x},y,${z});if(g.player.vel)g.player.vel.set(0,0,0)})()`)}
  await p.evaluate(`__step(${+frames})`);
  if(cams[k]){const c=cams[k].split(',').map(Number);await p.evaluate(`(()=>{const g=window.__game;g.camera.position.set(${c[0]},${c[1]},${c[2]});g.camera.lookAt(${c[3]},${c[4]},${c[5]});g.camera.updateMatrixWorld();__step(0)})()`)}
- console.log('step ms',Date.now()-t1);const f=poss.length>1?out.replace('.png','_'+k+'.png'):out;await p.screenshot({path:f,timeout:240000})}
+ await p.evaluate('window.__rep&&window.__rep()');console.log('step ms',Date.now()-t1);const f=poss.length>1?out.replace('.png','_'+k+'.png'):out;await p.screenshot({path:f,timeout:240000})}
 console.log(logs.join('\n')||'no console');await b.close();await srv.close();

@@ -8,7 +8,7 @@ function soil(u,v,o){
   const f1=fbm(u*6,v*6,5,1,6),f2=fbm(u*28,v*28,3,2,28),f3=fbm(u*3,v*3,3,5,3);
   worley(u*13,v*13,3,13,W);const d1=W[0],d2=W[1],id=W[2];
   const peb=(id>.45?1:0)*(1-sm(.2,.36,d1)); const crack=1-sm(0,.07,d2-d1);
-  const col=[0,0,0];mix3(col,[.085,.045,.07],[.27,.15,.13],f1*.8+f2*.4);
+  const col=[0,0,0];mix3(col,[.07,.042,.085],[.23,.14,.17],f1*.8+f2*.4);
   const tint=(f3-.5)*.1;col[0]+=tint;col[2]+=tint*.6;
   const pc=.14+id*.14;col[0]=lerp(col[0],pc*1.05,peb*.8);col[1]=lerp(col[1],pc*.95,peb*.8);col[2]=lerp(col[2],pc*1.2,peb*.8);
   const cr=crack*sm(.45,.62,f1)*.7;col[0]*=1-cr*.8;col[1]*=1-cr*.8;col[2]*=1-cr*.7;
@@ -35,20 +35,23 @@ function vein(u,v,o){
   col[0]*=1-crack*(1-live)*.6;col[1]*=1-crack*(1-live)*.6;col[2]*=1-crack*(1-live)*.6;
   o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.5+f2*.3-g*.3;o[4]=f1*.5+f2*.25-crack*.8}
 function rock(u,v,o){
-  const f1=fbm(u*4,v*4,5,31,4),f2=fbm(u*20,v*20,4,32,20);
-  const warp=fbm(u*4,v*4,3,33,4)*2.2;
-  const band=Math.sin((v*9+warp)*Math.PI*2)*.5+.5;const band2=Math.sin((v*23+warp*2.5+f2)*Math.PI*2)*.5+.5;
-  worley(u*9,v*9,34,9,W);const crack=1-sm(0,.05,W[1]-W[0]);
-  const crk=sm(.5,.68,fbm(u*3,v*3,2,36,3));const col=[0,0,0];mix3(col,[.17,.15,.2],[.38,.35,.4],band*.6+f1*.4);
-  const rust=sm(.6,.85,fbm(u*5,v*5,3,35,5)*(.6+band*.5));col[0]=lerp(col[0],.42,rust*.45);col[1]=lerp(col[1],.27,rust*.45);col[2]=lerp(col[2],.24,rust*.45);
-  const k=.8+band2*.25+f2*.25;col[0]*=k;col[1]*=k;col[2]*=k*1.02;
-  const cm=crack*crk;col[0]*=1-cm*.55;col[1]*=1-cm*.55;col[2]*=1-cm*.5;
-  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.8+f2*.15;o[4]=band*.3+band2*.12+f1*.4+f2*.2-cm*.35}
+  const f1=fbm(u*4,v*4,5,31,4),f2=fbm(u*22,v*22,4,32,22),f3=fbm(u*60,v*60,2,37,60);
+  const wp=fbm(u*5,v*5,3,38,5)*.5;
+  worley(u*8+wp*1.4,v*8+wp*1.4,34,8,W);const d1=W[0],d2=W[1],id=W[2];
+  worley(u*14,v*14,39,14,W);const sd1=W[0],sid=W[2];
+  const edge=d2-d1,crack=1-sm(0,.07,edge),bevel=sm(0,.35,edge);
+  const strata=Math.sin((v*7+f1*1.6+id*2)*Math.PI*2)*.5+.5;const bev2=bevel;
+  const col=[0,0,0];mix3(col,[.06,.07,.12],[.26,.3,.4],id*.3+f1*.55+strata*.15);
+  const sub=sid*.18+.9;col[0]*=sub;col[1]*=sub;col[2]*=sub;
+  const rust=sm(.7,.9,fbm(u*6,v*6,3,35,6))*.3;col[0]=lerp(col[0],.3,rust*.3);col[1]=lerp(col[1],.2,rust*.3);col[2]=lerp(col[2],.2,rust*.3);
+  const k=.82+f2*.3+f3*.12;col[0]*=k;col[1]*=k;col[2]*=k*1.03;
+  const ck=crack*sm(.35,.55,f1);col[0]*=1-ck*.75;col[1]*=1-ck*.75;col[2]*=1-ck*.7;
+  o[0]=col[0];o[1]=col[1];o[2]=col[2];o[3]=.78+f2*.15;o[4]=id*.6+bevel*.22+f1*.4+f2*.25+f3*.1-ck*.5}
 function sand(u,v,o){
   const f1=fbm(u*4,v*4,4,41,4),f2=fbm(u*60,v*60,2,42,60);
   const warp=fbm(u*5,v*5,3,43,5)*1.6;
   const rip=Math.sin((u*14+v*5+warp*3)*Math.PI*2)*.5+.5;
-  const col=[0,0,0];mix3(col,[.34,.27,.26],[.58,.47,.38],f1*.8+f2*.15);
+  const col=[0,0,0];mix3(col,[.24,.2,.21],[.42,.36,.31],f1*.8+f2*.15);
   const rk=.94+rip*.1;col[0]*=rk;col[1]*=rk;col[2]*=rk*.97;
   const gr=h2(Math.floor(u*512),Math.floor(v*512),9);col[0]+=(gr-.5)*.06;col[1]+=(gr-.5)*.05;col[2]+=(gr-.5)*.05;
   if(gr>.997){col[0]+=.3;col[1]+=.45;col[2]+=.5}

@@ -1,6 +1,7 @@
 // Shared procedural graphics helpers for buildings: textures, materials, Model builder.
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 function rng(seed){let s=seed>>>0;return()=>((s=Math.imul(s^s>>>15,1|s)+0x6D2B79F5|0),((s^s>>>7)>>>0)/4294967296)}
@@ -34,13 +35,14 @@ export function makeGlowTex(){const c=cv(64,64),g=c.getContext('2d'),gr=g.create
 export function makeSmokeTex(){const c=cv(64,64),g=c.getContext('2d'),r=rng(5);for(let i=0;i<14;i++){const x=32+(r()-.5)*22,y=32+(r()-.5)*22,rad=10+r()*12,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,'rgba(255,255,255,.35)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64)}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 
 let _m=null;
-export function mats(){
+export function mats(renderer){
   if(_m)return _m;
+  let env=null;try{if(renderer){const pm=new THREE.PMREMGenerator(renderer);env=pm.fromScene(new RoomEnvironment(),.04).texture;pm.dispose()}}catch(e){}
   const [pt,pb]=makePanelTex('panel'),[lt,lb]=makePanelTex('plate'),[ht,hb]=makePanelTex('hazard');
   const std=(o)=>new THREE.MeshStandardMaterial(o);
   _m={
-    hull:std({map:pt,bumpMap:pb,bumpScale:2.2,color:0xcfd8e6,metalness:.82,roughness:.42}),
-    dark:std({map:pt,bumpMap:pb,bumpScale:1.6,color:0x70788a,metalness:.9,roughness:.5}),
+    hull:std({map:pt,bumpMap:pb,bumpScale:2.2,color:0xcfd8e6,metalness:.7,roughness:.42}),
+    dark:std({map:pt,bumpMap:pb,bumpScale:1.6,color:0x70788a,metalness:.75,roughness:.5}),
     plate:std({map:lt,bumpMap:lb,bumpScale:2,color:0xe0e6f0,metalness:.78,roughness:.36}),
     accent:std({map:pt,bumpMap:pb,bumpScale:1.4,color:0xd8782a,metalness:.55,roughness:.45}),
     hazard:std({map:ht,bumpMap:hb,bumpScale:1.4,color:0xffffff,metalness:.5,roughness:.5}),
@@ -49,6 +51,7 @@ export function mats(){
     chrome:std({color:0xdfe6ef,metalness:1,roughness:.18}),
     glass:std({color:0x55c8e0,metalness:.1,roughness:.05,transparent:true,opacity:.28,depthWrite:false,emissive:0x0a3a48,emissiveIntensity:.6}),
   };
+  if(env)for(const k of ['hull','dark','plate','accent','hazard','black','brass','chrome']){_m[k].envMap=env;_m[k].envMapIntensity=k==='chrome'?1.3:.9}
   return _m;
 }
 

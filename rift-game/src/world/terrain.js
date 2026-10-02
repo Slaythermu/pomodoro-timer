@@ -71,8 +71,8 @@ export function init(ctx){
     for(let k=0;k<3+(R()*3|0);k++){const a=R()*6.28,d=1.2*s+R()*1.5,xx=x+Math.cos(a)*d,zz=z+Math.sin(a)*d;if(wet(xx,zz))continue;const ss=.25+R()*.4;
       items.crystalS.push({v,x:xx,y:heightAt(xx,zz)-.05,z:zz,ry:R()*6.28,sx:ss,sy:ss*(.9+R()*.4),sz:ss,rx:(R()-.5)*.3,rz:(R()-.5)*.3,c:jit(.85,1.15)})}
     return true};
-  for(const [x,z] of starters){for(let k=0;k<10;k++){const xx=x+(R()-.5)*5,zz=z+(R()-.5)*5;if(placeCrystal(xx,zz,1.3+R()*.5,true))break}}
-  for(let a=0;a<6000&&nCry<70;a++){const [x,z]=pt(100);if(Math.hypot(x,z)<24)continue;sample(x,z);const w=.08+bio.vein*1.2+bio.rock*.5;if(R()>w)continue;placeCrystal(x,z,.9+R()*1.1)}
+  for(const [x,z] of starters){for(let k=0;k<10;k++){const xx=x+(R()-.5)*5,zz=z+(R()-.5)*5;if(placeCrystal(xx,zz,1.6+R()*.5,true))break}}
+  for(let a=0;a<6000&&nCry<70;a++){const [x,z]=pt(100);if(Math.hypot(x,z)<24)continue;sample(x,z);const w=.08+bio.vein*1.2+bio.rock*.5;if(R()>w)continue;placeCrystal(x,z,1.1+R()*1.2)}
   // boulders (blocking, steel nodes)
   let nRock=0;
   for(let a=0;a<9000&&nRock<150;a++){const [x,z]=pt(106);if(Math.hypot(x,z)<14||wet(x,z))continue;sample(x,z);const w=.12+bio.rock*1.1+bio.vein*.3;if(R()>w)continue;
@@ -84,7 +84,7 @@ export function init(ctx){
   for(let a=0;a<20000&&nTree<560;a++){const [x,z]=pt(110);const r=Math.hypot(x,z);if(r<11||wet(x,z)||slopeAt(x,z)>.5)continue;sample(x,z);
     const grove=sm(.38,.62,fbm(x*.035+3,z*.035+8,3,seed+31));
     const w=(.04+bio.moss*.9+bio.soil*.3+bio.vein*.08)*(1-bio.rock)*(1-bio.sand)*(.15+.85*grove)*sm(11,26,r);if(R()>w)continue;
-    const v=bio.vein>.1||bio.rock>.2?2:(bio.moss>.35?(R()<.6?0:1):(R()<.5?1:(R()<.5?0:2)));const s=.8+R()*.7;const rad=(v===1?.7:.5)*s;
+    const v=bio.vein>.1||bio.rock>.2?2:(bio.moss>.35?(R()<.6?0:(R()<.35?1:2)):(R()<.3?1:(R()<.55?0:2)));const s=.8+R()*.7;const rad=(v===1?.7:.5)*s;
     if(!occ.free(x,z,1.5*s))continue;
     const it={x,y:heightAt(x,z)-.1,z,ry:R()*6.28,sx:s,sy:s*(.85+R()*.4),sz:s,rx:(R()-.5)*.06,rz:(R()-.5)*.06,c:jit(.82,1.18),s:nTree};
     items.tree[v].push(it);addProp('tree','tree',x,z,rad,s,'carbon',Math.round(45*s),it);occ.add(x,z,1.5*s);nTree++;
@@ -93,10 +93,10 @@ export function init(ctx){
   let nM=0;
   for(let a=0;a<9000&&nM<85;a++){const [x,z]=pt(108);const r=Math.hypot(x,z);if(r<13||wet(x,z)||slopeAt(x,z)>.45)continue;sample(x,z);
     const w=(.05+bio.moss*.7+bio.soil*.35)*(1-bio.rock)*(1-bio.sand)*sm(12,28,r);if(R()>w)continue;
-    const s=1.0+R()*1.1;if(!occ.free(x,z,1.9*s))continue;const v=R()<.4?0:R()<.55?1:2;
+    const s=.85+R()*.9;if(!occ.free(x,z,1.9*s))continue;const v=R()<.4?0:R()<.55?1:2;
     const it={x,y:heightAt(x,z)-.05,z,ry:R()*6.28,sx:s,sy:s*(.9+R()*.3),sz:s,rx:0,rz:0,c:jit(.85,1.15)};items.mush[v].push(it);
     addProp('tree','mushroom',x,z,.5*s,s,'carbon',Math.round(60*s),it);occ.add(x,z,1.8*s);nM++;
-    const pc=[[.3,.7,1],[1,.3,.9],[1,.6,.2]][v];glowSrc.push([x,z,5.5*s,pc[0],pc[1],pc[2],.55]);aoSrc.push([x,z,2*s,.5])}
+    const pc=[[.3,.7,1],[1,.3,.9],[1,.6,.2]][v];glowSrc.push([x,z,5*s,pc[0],pc[1],pc[2],.3]);aoSrc.push([x,z,2*s,.5])}
   const nodeCount=props.length;
   // hash of blockers
   const phash=new Map(),CELL=8;let maxPR=0;
@@ -121,7 +121,7 @@ export function init(ctx){
     const w=(.03+bio.moss*.4+bio.vein*.5+reed*.9)*(1-bio.rock)*(.2+.8*sm(.4,.65,fbm(x*.05,z*.05,2,seed+51)));if(R()>w)continue;if(!occ.free(x,z,.2))continue;
     const s=(reed?1.3:.7)+R()*.8;items.bulb.push({x,y:heightAt(x,z)-.02,z,ry:R()*6.28,sx:s,sy:s*(.8+R()*.6),sz:s,rx:(R()-.5)*.15,rz:(R()-.5)*.15,c:jit(.9,1.1)})}
   const GRC=[[1,1,1],[1.3,1.15,.65],[.7,.95,1.3],[1.15,.8,1.1]];
-  for(let a=0;a<900000&&items.grass.length<110000;a++){const [x,z]=pt(112);sample(x,z);
+  for(let a=0;a<900000&&items.grass.length<100000;a++){const [x,z]=pt(112);sample(x,z);
     const cl=.25+.75*sm(.3,.6,fbm(x*.12+9,z*.12-4,2,seed+61));
     const w=(bio.moss*1+bio.soil*.4+bio.vein*.18+bio.sand*.04)*cl*(.12+.88*sm(5,16,Math.hypot(x,z)));if(R()>w)continue;if(waterDepth(x,z)>-.1)continue;if(!occ.free(x,z,.15))continue;
     const s=.7+R()*.9;const cc=GRC[R()<.78?0:1+(R()*3|0)];
@@ -153,8 +153,8 @@ export function init(ctx){
   const mFern=foliageMat({map:fernT,alphaTest:.45,double:true,wind:.45,glowK:2.2,rough:.7});
   const mGrass=foliageMat({double:true,wind:.35,glowK:1.7,rough:.85});
   const mBulb=foliageMat({double:true,wind:.25,glowK:1.1,rough:.5});
-  const mMush=foliageMat({rough:.5,cutaway:true,glowK:2.0});
-  const mMushS=foliageMat({rough:.5,glowK:2.0});
+  const mMush=foliageMat({rough:.85,cutaway:true,glowK:1.8});
+  const mMushS=foliageMat({rough:.85,glowK:1.8});
   const mRock=foliageMat({map:rockMap,normalMap:rockN,rough:.9,ns:1.6});
   const mCry=foliageMat({rough:.15,metal:.2,glowK:2.0});
   for(let v=0;v<3;v++){const t=buildTree(v,seed+v*7);instance([{geo:t.trunk,mat:mTrunk},{geo:t.canopy,mat:mCan,depth:dCan}],items.tree[v],50,true)}

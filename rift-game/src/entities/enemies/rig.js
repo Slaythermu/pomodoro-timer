@@ -9,7 +9,7 @@ const _a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_d=ne
 /** Leg segment geometry, base at origin, pointing +Y, length L. kind: 'upper' | 'lower'. */
 export function legSegGeo(L,r0,r1,kind,{spikes=true,claw=0,plates=true}={}){
   const b=new GeoBuilder(),col=[1,1,1];
-  b.add(taper(V(0,0,0),V(0,L,0),r0,r1,8,3),new THREE.Matrix4(),{color:col});
+  b.add(taper(V(0,0,0),V(0,L,0),r0,r1,8,3),segMatrix(V(0,0,0),V(0,L,0)),{color:col});
   if(plates)for(let i=0;i<3;i++){const t=0.2+i*0.28,r=r0+(r1-r0)*t;
     const m=new THREE.Matrix4().makeTranslation(0,L*t,0);b.add(ellipsoid(r*1.5,L*0.14,r*1.5,8,5),m,{color:col})}
   if(spikes){const n=kind==='upper'?3:2;for(let i=0;i<n;i++){const t=0.25+i*0.28,r=r0+(r1-r0)*t;

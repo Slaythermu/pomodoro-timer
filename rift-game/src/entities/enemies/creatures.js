@@ -77,9 +77,9 @@ export function buildBrute(ctx,deb){
   mesh(ell(0.42,0.38,0.55),mArm,tp,0,0,-0.4);for(let i=0;i<6;i++){const a=i*1.047;mesh(cone(0.1,0.4,5),mArm,tp,Math.cos(a)*0.35,Math.sin(a)*0.35,-0.45,{rx:0,rz:a-Math.PI/2+0,ry:0})}
   // legs
   const defs=[],bend=sx=>V(sx*0.6,1,0);let gi=0;
-  for(const sz of [1,-1])for(const sx of [-1,1]){defs.push({hip:V(sx*0.8,-0.2,sz*0.95),home:V(sx*1.35,0,sz*1.0),group:(sx*sz>0)?0:1,bend:bend(sx)});
+  for(const sz of [1,-1])for(const sx of [-1,1]){defs.push({hip:V(sx*0.85,-0.3,sz*0.95),home:V(sx*2.0,0,sz*1.3),group:(sx*sz>0)?0:1,bend:bend(sx)});
     mesh(ell(0.5,0.45,0.55),mArm,body,sx*0.95,0.1,sz*0.95)}
-  const legs=makeLegs(null,legRoot,defs,mBody,mArm,{key:"brute",L1:1.2,L2:1.35,r0:0.3,r1:0.2,r2:0.1,claw:0.6,stepDist:0.8,stepH:0.5,stepTime:0.34});
+  const legs=makeLegs(null,legRoot,defs,mBody,mArm,{key:"brute",L1:1.6,L2:1.8,r0:0.32,r1:0.22,r2:0.11,claw:0.7,stepDist:1.0,stepH:0.6,stepTime:0.34});
   const rig={root,legRoot,body,legs,flash:fl,wps,mats:[mBody,mArm,mFlesh],
     visible(v){root.visible=v;legRoot.visible=v;for(const l of legs)l.setVisible(v)},
     reset(){for(const l of legs)l.reset();fl.value=0;this.pose=null},
@@ -88,7 +88,7 @@ export function buildBrute(ctx,deb){
       root.position.set(e.pos.x,ground(e.pos.x,e.pos.z),e.pos.z);root.rotation.y=e.yaw;
       const spd=Math.hypot(e.vx,e.vz),sp=this.pose||{y:1.55,pitch:0,roll:0};
       const jit=(k>0.3||dk>0)?(Math.sin(t*90)*0.03*(k+dk)):0;
-      body.position.set(jit,lerp(1.58,0.45,smooth(0,1,dk))+sp.y*0.0+Math.sin(t*e.bobF)*0.05*Math.min(1,spd*0.3)-k*0.28,0);
+      body.position.set(jit,lerp(2.05,0.55,smooth(0,1,dk))+sp.y*0.0+Math.sin(t*e.bobF)*0.05*Math.min(1,spd*0.3)-k*0.28,0);
       body.rotation.set(sp.pitch+k*0.22+(ch?0.14:0)+dk*0.15,0,sp.roll+dk*0.8*e.dsign+Math.sin(t*e.bobF)*0.02*Math.min(1,spd*0.3));
       head.rotation.set(k*0.5+(ch?0.3:0)+dk*0.5+Math.sin(t*2+e.seed)*0.03,Math.sin(t*0.9+e.seed)*0.12*(1-k),0);
       jaw.rotation.x=(k>0?0.65*k:0.08+Math.max(0,Math.sin(t*3+e.seed))*0.08)+dk*0.5+(e.state===3&&e.kind===1?0.8:0);
@@ -96,7 +96,7 @@ export function buildBrute(ctx,deb){
       const br=1+Math.sin(t*2.2+e.seed)*0.015;body.scale.set(br,br,br);
       root.updateMatrixWorld(true);
       for(const l of legs)l.update(body,e.vx,e.vz,dt,ground,legs,1+dk*0.7);
-      this.pose=bodyPose(this,e,legs,ground,1.55,t);
+      this.pose=bodyPose(this,e,legs,ground,2.05,t);
       // weak points: flare while winding up / recovering, pulse otherwise, plus hit flash
       const pul=0.6+0.4*Math.sin(t*3+e.seed),fo=e.state===4?1.8:1;
       const wpS=(0.9+k*0.9+(e.state===4?0.6:0)+fl.value*0.8)*(e.state===3?1.2:1);
@@ -130,8 +130,8 @@ export function buildSpitter(ctx,deb){
   const nod=[];for(let i=0;i<9;i++){const a=i*2.4,y=Math.sin(a*1.3)*0.4,z=-0.3+Math.cos(a)*0.55;nod.push(mesh(sph(0.07,8,6),HDR(1,3,0.6),sacG,Math.sin(a)*0.5,0.35+y*0.3,z,{shadow:false}))}
   for(let i=0;i<3;i++)mesh(cone(0.09,0.3,5),mArm,sacG,0,0.5-i*0.04,-0.15-i*0.28,{rx:-0.6});
   const defs=[];
-  for(const [z,hz] of [[0.5,1.15],[0.1,0.15],[-0.25,-1.0]])for(const sx of [-1,1])defs.push({hip:V(sx*0.28,-0.05,z),home:V(sx*(1.35),0,hz),group:(defs.length%2),bend:V(sx*0.25,1,0)});
-  const legs=makeLegs(null,legRoot,defs,mArm,mBody,{key:'spit',plates:false,L1:1.0,L2:1.3,r0:0.1,r1:0.06,r2:0.03,claw:0.3,stepDist:0.65,stepH:0.4,stepTime:0.26});
+  for(const [z,hz] of [[0.5,1.15],[0.1,0.15],[-0.25,-1.0]])for(const sx of [-1,1])defs.push({hip:V(sx*0.28,-0.05,z),home:V(sx*(2.1),0,hz*1.3),group:(defs.length%2),bend:V(sx*0.25,1,0)});
+  const legs=makeLegs(null,legRoot,defs,mArm,mBody,{key:'spit',plates:false,L1:1.35,L2:1.8,r0:0.1,r1:0.06,r2:0.03,claw:0.3,stepDist:0.65,stepH:0.4,stepTime:0.26});
   const rig={root,legRoot,body,legs,flash:fl,mats:[mBody,mArm,mSac],
     visible(v){root.visible=v;legRoot.visible=v;for(const l of legs)l.setVisible(v)},
     reset(){for(const l of legs)l.reset();fl.value=0;this.pose=null},
@@ -139,7 +139,7 @@ export function buildSpitter(ctx,deb){
       const k=e.state===2?clamp(e.stateT/e.windup,0,1):0,rec=e.state===3?1-clamp(e.stateT/0.3,0,1):0,dk=e.dk||0;
       root.position.set(e.pos.x,ground(e.pos.x,e.pos.z),e.pos.z);root.rotation.y=e.yaw;
       const spd=Math.hypot(e.vx,e.vz),sp=this.pose||{y:1.25,pitch:0,roll:0};
-      body.position.set(0,lerp(1.3,0.35,dk)+Math.sin(t*e.bobF*2)*0.04*Math.min(1,spd*0.3)+k*0.18,0);
+      body.position.set(0,lerp(1.55,0.35,dk)+Math.sin(t*e.bobF*2)*0.04*Math.min(1,spd*0.3)+k*0.18,0);
       body.rotation.set(sp.pitch-k*0.4+rec*0.25+dk*0.3,0,sp.roll+dk*0.9*e.dsign);
       head.rotation.set(-k*0.55+rec*0.4,Math.sin(t*1.3+e.seed)*0.25*(1-k),0);
       const swell=1+k*0.5-rec*0.25+Math.sin(t*3+e.seed)*0.03+dk*0.6*(Math.sin(t*50)*0.15+0.4);
@@ -150,7 +150,7 @@ export function buildSpitter(ctx,deb){
       mSac.emissiveIntensity=1.2+k*2.5;
       root.updateMatrixWorld(true);
       for(const l of legs)l.update(body,e.vx,e.vz,dt,ground,legs,1+dk*0.9);
-      this.pose=bodyPose(this,e,legs,ground,1.25,t,0.25);
+      this.pose=bodyPose(this,e,legs,ground,1.55,t,0.25);
     }};
   return rig;
 }
@@ -169,7 +169,7 @@ export function buildBoss(ctx,deb){
   for(let i=0;i<8;i++){const z=2.6-i*0.9,r=Math.sqrt(Math.max(0.1,1-((z-0.2)/3.8)**2)),y=2.2*r+0.05;
     mesh(ell(2.4*r+0.2,0.28,0.55,16,6),mArm,body,0,y,z,{rx:-Math.atan2(z-0.2,3.5)*0.3});
     const sp=mesh(cone(0.25,1.2+0.1*(i%3),6),mArm,body,0,y+0.15,z-0.3,{rx:-0.45});
-    const b=mesh(sph(0.3,10,8),bulbM,body,0,y+1.2+0.1*(i%3)*0.3,z-0.85,{shadow:false});bulbs.push(b);
+    const sh=1.2+0.1*(i%3),b=mesh(sph(0.3,10,8),bulbM,body,0,y+0.15+sh*0.9,z-0.3-sh*0.43,{shadow:false});bulbs.push(b);
     for(const s of [-1,1]){const w=mesh(sph(0.22,8,6),coreM,body,s*(2.1*r),y-0.65,z+0.2,{sx:1,sy:0.7,sz:1.4,shadow:false});bulbs.push(w)}}
   // head
   const head=new THREE.Group();head.position.set(0,0.35,3.9);body.add(head);

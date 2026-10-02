@@ -234,7 +234,7 @@ beacon(){
 
 export const SPECS={
   core:{name:'Command Core',cells:3,hp:3500,cost:{},tint:'#35e8ff'},
-  harvester:{name:'Harvester',cells:2,hp:420,cost:{carbon:40,steel:15},power:2,tint:'#ffb030',build:3.2,desc:'Mines resource nodes'},
+  harvester:{name:'Harvester',cells:2,hp:420,cost:{carbon:40,steel:15},power:2,tint:'#ffb030',build:3.2,desc:'Place beside a resource node (crystal / rock / tree)'},
   generator:{name:'Power Gen',cells:2,hp:480,cost:{carbon:50,steel:30},power:-9,tint:'#ffe27a',build:3.6,desc:'+9 energy'},
   turret:{name:'Gun Turret',cells:2,hp:520,cost:{carbon:30,steel:45},power:2,tint:'#ff5a3a',build:3,desc:'Rapid twin cannon',range:24},
   plasma:{name:'Plasma Tower',cells:2,hp:600,cost:{carbon:40,steel:50,crystal:30},power:5,tint:'#b455ff',build:4.2,desc:'Arc lightning',range:17},

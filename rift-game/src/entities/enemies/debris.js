@@ -72,10 +72,10 @@ export class Debris{
     mesh.instanceColor.needsUpdate=true;
   }
   puddle(x,z,r,life=14,col=[0.04,0.16,0.09]){
-    const i=this.pi++%this.P,p=this.pud[i];p.x=x;p.z=z;p.r=r;p.age=0;p.life=life;p.y=this.ground(x,z)+0.04;p.rot=Math.random()*6;p.ax=0.7+Math.random()*0.6;
+    const i=this.pi++%this.P,p=this.pud[i];p.x=x;p.z=z;p.r=r;p.age=0;p.life=life;p.y=this.ground(x,z)+0.1;p.rot=Math.random()*6;p.ax=0.7+Math.random()*0.6;
     this.pudMesh.setColorAt(i,C.setRGB(col[0]*(0.7+Math.random()*0.6),col[1]*(0.7+Math.random()*0.6),col[2]*(0.7+Math.random()*0.6)));this.pudMesh.instanceColor.needsUpdate=true;
   }
-  acidPool(x,z,r,life=4.5){const i=this.ai++%this.A,p=this.acid[i];p.x=x;p.z=z;p.r=r;p.age=0;p.life=life;p.dmgT=0;p.y=this.ground(x,z)+0.07;return p}
+  acidPool(x,z,r,life=4.5){const i=this.ai++%this.A,p=this.acid[i];p.x=x;p.z=z;p.r=r;p.age=0;p.life=life;p.dmgT=0;p.y=this.ground(x,z)+0.16;return p}
   telegraph(kind,color=0xff5522){
     const m=this.tgMat,g=this.tgGeo,grp=new THREE.Group();
     const parts={};
