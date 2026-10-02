@@ -15,7 +15,7 @@ class Soft{
     this.pts=new THREE.Points(g,this.mat);this.pts.frustumCulled=false;this.pts.renderOrder=additive?30:20;scene.add(this.pts);
     for(let k=0;k<N;k++)this.size[k]=0;
   }
-  emit(x,y,z,vx,vy,vz,life,s0,s1,color,a0=1,grav=0,drag=0){const d=this.d,k=this.i;this.i=(k+1)%this.N;
+  emit(x,y,z,vx,vy,vz,life,s0,s1,color,a0=1,grav=0,drag=0){if(!(x+y+z+vx+vy+vz===x+y+z+vx+vy+vz))return;const d=this.d,k=this.i;this.i=(k+1)%this.N;
     d.x[k]=x;d.y[k]=y;d.z[k]=z;d.vx[k]=vx;d.vy[k]=vy;d.vz[k]=vz;d.age[k]=0;d.life[k]=life;d.s0[k]=s0;d.s1[k]=s1;d.a0[k]=a0;d.grav[k]=grav;d.drag[k]=drag;
     d.col[k*3]=(color>>16&255)/255;d.col[k*3+1]=(color>>8&255)/255;d.col[k*3+2]=(color&255)/255}
   update(dt){const d=this.d,N=this.N;this.mat.uniforms.uScale.value=this.r.domElement.height/(2*Math.tan(this.cam.fov*Math.PI/360));

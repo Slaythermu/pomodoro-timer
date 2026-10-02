@@ -18,7 +18,7 @@ export class Debris{
     this.G=420;this.g={px:new Float32Array(this.G),py:new Float32Array(this.G),pz:new Float32Array(this.G),vx:new Float32Array(this.G),vy:new Float32Array(this.G),vz:new Float32Array(this.G),
       rx:new Float32Array(this.G),ry:new Float32Array(this.G),rz:new Float32Array(this.G),wx:new Float32Array(this.G),wy:new Float32Array(this.G),wz:new Float32Array(this.G),s:new Float32Array(this.G),life:new Float32Array(this.G)};
     this.gi=0;
-    const gm=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.3,metalness:0.1,clearcoat:1,clearcoatRoughness:0.15,envMap:getEnv(ctx),envMapIntensity:1.2,emissive:0x112211,emissiveIntensity:0.6});
+    const gm=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.3,metalness:0.1,clearcoat:1,clearcoatRoughness:0.15,envMap:getEnv(ctx),envMapIntensity:0.7,emissive:0x0a1a10,emissiveIntensity:0.3});
     this.gibMesh=new THREE.InstancedMesh(chunkGeo(),gm,this.G);this.gibMesh.castShadow=true;this.gibMesh.frustumCulled=false;this.gibMesh.count=this.G;
     this.gibMesh.setColorAt(0,C.set(1,1,1));for(let i=0;i<this.G;i++){this.gibMesh.setColorAt(i,C.set(0.1,0.08,0.14));D.scale.setScalar(0);D.updateMatrix();this.gibMesh.setMatrixAt(i,D.matrix)}
     this.scene.add(this.gibMesh);
@@ -30,9 +30,9 @@ export class Debris{
     // --- ichor puddles (wet, dark) and acid pools (glowing)
     const flat=new THREE.CircleGeometry(1,20);flat.rotateX(-Math.PI/2);
     this.P=140;this.pud=[];this.pi=0;
-    this.pudMesh=new THREE.InstancedMesh(flat,new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.12,metalness:0.2,envMap:getEnv(ctx),envMapIntensity:1.5,emissive:0x0a2a14,emissiveIntensity:0.8,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,transparent:true,opacity:0.9,depthWrite:false}),this.P);
+    this.pudMesh=new THREE.InstancedMesh(flat,new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.25,metalness:0.1,envMap:getEnv(ctx),envMapIntensity:0.45,emissive:0x0c3a1c,emissiveIntensity:0.7,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,transparent:true,opacity:0.9,depthWrite:false}),this.P);
     this.pudMesh.frustumCulled=false;this.pudMesh.setColorAt(0,C.set(1,1,1));this.pudMesh.renderOrder=1;
-    for(let i=0;i<this.P;i++){this.pud.push({x:0,z:0,r:0,age:99,life:1,y:0,rot:0,ax:1});D.scale.setScalar(0);D.updateMatrix();this.pudMesh.setMatrixAt(i,D.matrix);this.pudMesh.setColorAt(i,C.set(0.05,0.2,0.1))}
+    for(let i=0;i<this.P;i++){this.pud.push({x:0,z:0,r:0,age:99,life:1,y:0,rot:0,ax:1});D.scale.setScalar(0);D.updateMatrix();this.pudMesh.setMatrixAt(i,D.matrix);this.pudMesh.setColorAt(i,C.set(0.02,0.06,0.04))}
     this.scene.add(this.pudMesh);
     this.A=24;this.acid=[];this.ai=0;
     this.acidMesh=new THREE.InstancedMesh(flat,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.8,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),this.A);
@@ -45,7 +45,7 @@ export class Debris{
     const tm=(op)=>new THREE.MeshBasicMaterial({color:0xff5522,transparent:true,opacity:op,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4,side:THREE.DoubleSide});
     this.tgGeo={ring,disc,lane};this.tgMat=tm;
     // --- projectiles
-    this.proj=[];this.projGeo=new THREE.IcosahedronGeometry(0.34,2);this.projMat=new THREE.MeshBasicMaterial({color:new THREE.Color(0.5,2.6,0.5),toneMapped:false});
+    this.proj=[];this.projGeo=new THREE.IcosahedronGeometry(0.34,2);this.projMat=new THREE.MeshBasicMaterial({color:new THREE.Color(0.4,1.9,0.4),toneMapped:false});
     // --- shockwaves
     this.waves=[];this.waveGeo=new THREE.RingGeometry(0.9,1,64);this.waveGeo.rotateX(-Math.PI/2);
     this.waveMat=(c)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:1,depthWrite:false,toneMapped:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
@@ -63,7 +63,7 @@ export class Debris{
     }
     mesh.instanceColor.needsUpdate=true;
   }
-  globs(pos,n,{speed=6,up=5,size=0.12,color=[0.5,2.2,0.7],life=0.9}={}){
+  globs(pos,n,{speed=6,up=5,size=0.12,color=[0.35,1.3,0.45],life=0.9}={}){
     const b=this.b,mesh=this.globMesh;
     for(let k=0;k<n;k++){const i=this.bi++%this.B,a=Math.random()*6.283,s=speed*(0.2+Math.random());
       b.px[i]=pos.x;b.py[i]=pos.y+0.5;b.pz[i]=pos.z;b.vx[i]=Math.cos(a)*s;b.vz[i]=Math.sin(a)*s;b.vy[i]=up*(0.3+Math.random());
@@ -71,7 +71,7 @@ export class Debris{
       const v=0.6+Math.random()*0.6;mesh.setColorAt(i,C.setRGB(color[0]*v,color[1]*v,color[2]*v))}
     mesh.instanceColor.needsUpdate=true;
   }
-  puddle(x,z,r,life=14,col=[0.04,0.16,0.09]){
+  puddle(x,z,r,life=14,col=[0.015,0.05,0.03]){
     const i=this.pi++%this.P,p=this.pud[i];p.x=x;p.z=z;p.r=r;p.age=0;p.life=life;p.y=this.ground(x,z)+0.1;p.rot=Math.random()*6;p.ax=0.7+Math.random()*0.6;
     this.pudMesh.setColorAt(i,C.setRGB(col[0]*(0.7+Math.random()*0.6),col[1]*(0.7+Math.random()*0.6),col[2]*(0.7+Math.random()*0.6)));this.pudMesh.instanceColor.needsUpdate=true;
   }

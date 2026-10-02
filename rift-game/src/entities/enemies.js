@@ -116,12 +116,12 @@ export function init(ctx){
   function finishDeath(e){
     const p=e.pos,big=e.type==='boss',n=big?70:e.type==='brute'?24:12,h=big?3:1;
     const up=pos3(p.x,p.y+h,p.z);
-    deb.gibs(up,n,{speed:big?18:11,up:big?16:10,size:big?0.55:0.3,dirx:e.dirx,dirz:e.dirz,col:big?[0.12,0.06,0.14]:[0.1,0.08,0.13],glowFrac:0.35,spread:1});
-    deb.globs(up,big?80:30,{speed:big?16:10,up:big?12:8,size:big?0.2:0.14,color:e.type==='spitter'?[0.5,2.5,0.4]:[0.5,2.2,0.8]});
+    deb.gibs(up,n,{speed:big?18:11,up:big?16:10,size:big?0.4:0.2,dirx:e.dirx,dirz:e.dirz,col:big?[0.12,0.06,0.14]:[0.1,0.08,0.13],glowFrac:0.35,spread:1});
+    deb.globs(up,big?80:30,{speed:big?16:10,up:big?12:8,size:big?0.2:0.14,color:e.type==='spitter'?[0.4,1.5,0.3]:[0.35,1.4,0.5]});
     deb.puddle(p.x,p.z,big?9:e.type==='brute'?3.2:1.8,big?30:18);if(big)for(let i=0;i<7;i++)deb.puddle(p.x+(Math.random()-0.5)*14,p.z+(Math.random()-0.5)*14,2+Math.random()*3,24);
     if(e.type==='spitter'){deb.acidPool(p.x,p.z,2.3,3.5)}
-    ctx.fx?.burst?.('explosion',up,{count:big?30:10,scale:big?3:0.8});ctx.fx?.burst?.('blood',up,{count:big?40:20});
-    ctx.lighting?.addLight?.(up,0x66ffaa,big?6:2.5,big?30:10);
+    ctx.fx?.burst?.('explosion',up,{count:big?14:6,scale:big?1.8:0.6});ctx.fx?.burst?.('blood',up,{count:big?30:16});
+    ctx.lighting?.addLight?.(up,0x66ffaa,big?2.5:1.2,big?22:9);
     shake(big?1.2:0.25);
     const rig=e.rig;if(rig){freeRig(e.type,rig);e.rig=null}
     if(api.boss===e)api.boss=null;
@@ -284,8 +284,8 @@ export function init(ctx){
       move(e,dt,0,0,3);
       if(e.stateT>=0.3&&!e.hitDone){e.hitDone=true;
         const cx=e.pos.x+Math.sin(e.yaw)*2,cz=e.pos.z+Math.cos(e.yaw)*2,cp=pos3(cx,ground(cx,cz),cz);
-        shake(1.0);ctx.audio?.play?.('explosion',e.pos);ctx.fx?.burst?.('explosion',cp,{count:20,scale:2});ctx.lighting?.addLight?.(cp,0xff8844,6,28);
-        deb.gibs(cp,20,{speed:14,up:9,size:0.35,col:[0.2,0.15,0.15],glowFrac:0.1});deb.globs(cp,30,{speed:14,up:8,size:0.14,color:[3,1.2,0.4]});
+        shake(1.0);ctx.audio?.play?.('explosion',e.pos);ctx.fx?.burst?.('explosion',cp,{count:10,scale:1.4});ctx.lighting?.addLight?.(cp,0xff8844,2.5,22);
+        deb.gibs(cp,20,{speed:14,up:9,size:0.35,col:[0.2,0.15,0.15],glowFrac:0.1});deb.globs(cp,30,{speed:14,up:8,size:0.14,color:[1.6,0.7,0.25]});
         deb.shockwave(cx,cz,{maxR:21,speed:24,band:2,dmg:e.dmg,color:0xff6a2a,onHit:w=>{
           const pp=playerT.pos,band=w.band+1;
           if(!w.hit.has('p')&&Math.abs(Math.hypot(pp.x-w.x,pp.z-w.z)-w.r)<band&&(ctx.player?.pos?.y||0)<2.5){w.hit.add('p');playerHit(w.dmg);shake(0.5)}
@@ -299,7 +299,7 @@ export function init(ctx){
       if(e.stateT>=e.windup){
         const n=8+Math.floor(wave()*0.8);
         for(let i=0;i<n;i++){const a=i/n*6.283+Math.random()*0.3,r=e.radius+2+Math.random()*3;const sx=e.pos.x+Math.cos(a)*r,sz=e.pos.z+Math.sin(a)*r;
-          const s=spawn('skitter',sx,sz);if(s){s.age=-0.3;deb.globs(pos3(sx,e.pos.y,sz),5,{speed:4,up:4,color:[1.5,0.6,2.5]})}}
+          const s=spawn('skitter',sx,sz);if(s){s.age=-0.3;deb.globs(pos3(sx,e.pos.y,sz),5,{speed:4,up:4,color:[0.9,0.4,1.5]})}}
         ctx.audio?.play?.('wave');shake(0.4);setState(e,4,1.0);e.cd2=rage?9:14
       }
     }
@@ -334,8 +334,8 @@ export function init(ctx){
       const e=dying[i];e.dt+=dt;e.dk=Math.min(1,e.dt/e.dur);e.flash=0.5+0.5*Math.sin(e.dt*40);
       move(e,dt,0,0,2);
       if(e.rig){e.rig.flash.value=e.flash*0.8;e.rig.update(e,dt,ctx.time,ground)}
-      if(e.type==='boss'){e.expT-=dt;if(e.expT<=0){e.expT=0.14;const p=pos3(e.pos.x+(Math.random()-0.5)*9,e.pos.y+1+Math.random()*5,e.pos.z+(Math.random()-0.5)*9);
-        ctx.fx?.burst?.('explosion',p,{count:8,scale:1.2});deb.globs(p,10,{speed:9,up:8,size:0.15});deb.gibs(p,2,{speed:8,up:8,size:0.3});shake(0.35);ctx.lighting?.addLight?.(p,0xff8855,3,16)}}
+      if(e.type==='boss'){e.expT-=dt;if(e.expT<=0){e.expT=0.22;const p=pos3(e.pos.x+(Math.random()-0.5)*9,e.pos.y+1+Math.random()*5,e.pos.z+(Math.random()-0.5)*9);
+        ctx.fx?.burst?.('explosion',p,{count:3,scale:0.7});deb.globs(p,8,{speed:9,up:8,size:0.12});deb.gibs(p,2,{speed:8,up:8,size:0.25});shake(0.3);ctx.lighting?.addLight?.(p,0xff8855,1.2,10)}}
       else if(e.type==='spitter'&&e.dk>0.7&&Math.random()<0.5)deb.globs(pos3(e.pos.x,e.pos.y+1,e.pos.z),2,{speed:4,up:3});
       if(e.dt>=e.dur){dying.splice(i,1);finishDeath(e)}
     }
